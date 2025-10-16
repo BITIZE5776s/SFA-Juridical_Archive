@@ -8,10 +8,24 @@ interface CaseListItemProps {
 }
 
 export function CaseListItem({ document }: CaseListItemProps) {
-  const timeAgo = formatDistanceToNow(new Date(document.createdAt), { 
-    addSuffix: true, 
-    locale: ar 
-  });
+  // Safely format the date with error handling
+  const formatTimeAgo = (dateString: string) => {
+    try {
+      const date = new Date(dateString);
+      if (isNaN(date.getTime())) {
+        return 'تاريخ غير صحيح';
+      }
+      return formatDistanceToNow(date, { 
+        addSuffix: true, 
+        locale: ar 
+      });
+    } catch (error) {
+      console.error('Error formatting date:', error);
+      return 'تاريخ غير صحيح';
+    }
+  };
+
+  const timeAgo = formatTimeAgo(document.created_at);
 
   const getCategoryColor = (category: string) => {
     const colors = {

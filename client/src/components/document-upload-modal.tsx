@@ -30,12 +30,13 @@ import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/use-auth";
 import { apiRequest } from "@/lib/queryClient";
-import { CATEGORIES } from "@/lib/constants";
+import { CATEGORIES, STATUSES } from "@/lib/constants";
 import { type Block, type Row, type Section } from "@shared/schema";
 
 const documentSchema = z.object({
   title: z.string().min(1, "عنوان الوثيقة مطلوب"),
   category: z.string().min(1, "فئة الوثيقة مطلوبة"),
+  status: z.string().min(1, "حالة الوثيقة مطلوبة"),
   sectionId: z.string().min(1, "القسم مطلوب"),
   metadata: z.object({
     priority: z.string().optional(),
@@ -63,6 +64,7 @@ export function DocumentUploadModal({ isOpen, onClose }: DocumentUploadModalProp
     defaultValues: {
       title: "",
       category: "",
+      status: "نشط",
       sectionId: "",
       metadata: {
         priority: "متوسطة",
@@ -102,8 +104,18 @@ export function DocumentUploadModal({ isOpen, onClose }: DocumentUploadModalProp
         title: "نجح الحفظ",
         description: "تم إنشاء الوثيقة بنجاح",
       });
+      // Invalidate all document-related queries to ensure fresh data
       queryClient.invalidateQueries({ queryKey: ["/api/documents"] });
-      queryClient.invalidateQueries({ queryKey: ["/api/dashboard"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/dashboard/stats"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/dashboard/user-activity", user?.id] });
+      queryClient.invalidateQueries({ queryKey: ["/api/dashboard/recent-documents"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/blocks"] });
+      
+      // Force refetch critical queries
+      queryClient.refetchQueries({ queryKey: ["/api/documents"] });
+      queryClient.refetchQueries({ queryKey: ["/api/dashboard/stats"] });
+      queryClient.refetchQueries({ queryKey: ["/api/dashboard/user-activity", user?.id] });
+      
       onClose();
       form.reset();
     },
@@ -156,7 +168,7 @@ export function DocumentUploadModal({ isOpen, onClose }: DocumentUploadModalProp
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>فئة الوثيقة</FormLabel>
-                  <Select onValueChange={field.onChange} defaultValue={field.value}>
+                  <Select onValueChange={field.onChange} value={field.value}>
                     <FormControl>
                       <SelectTrigger>
                         <SelectValue placeholder="اختر فئة الوثيقة" />
@@ -166,6 +178,31 @@ export function DocumentUploadModal({ isOpen, onClose }: DocumentUploadModalProp
                       {CATEGORIES.map((category) => (
                         <SelectItem key={category} value={category}>
                           {category}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="status"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>حالة الوثيقة</FormLabel>
+                  <Select onValueChange={field.onChange} value={field.value}>
+                    <FormControl>
+                      <SelectTrigger>
+                        <SelectValue placeholder="اختر حالة الوثيقة" />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      {STATUSES.map((status) => (
+                        <SelectItem key={status} value={status}>
+                          {status}
                         </SelectItem>
                       ))}
                     </SelectContent>

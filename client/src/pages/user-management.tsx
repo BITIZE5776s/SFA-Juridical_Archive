@@ -7,7 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import { 
+import {
   Select,
   SelectContent,
   SelectItem,
@@ -51,7 +51,7 @@ import {
 import { Switch } from "@/components/ui/switch";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
-import { insertUserSchema, type User, type InsertUser } from "@shared/schema";
+import { type User, type InsertUser } from "@shared/schema";
 import { ROLE_LABELS } from "@/lib/constants";
 import { formatDistanceToNow } from "date-fns";
 import { ar } from "date-fns/locale";
@@ -69,14 +69,11 @@ export default function UserManagement() {
   });
 
   const form = useForm<InsertUser>({
-    resolver: zodResolver(insertUserSchema),
     defaultValues: {
       username: "",
-      password: "",
       email: "",
       fullName: "",
       role: "viewer",
-      isActive: true,
     },
   });
 
@@ -175,8 +172,6 @@ export default function UserManagement() {
       email: user.email,
       fullName: user.fullName,
       role: user.role,
-      isActive: user.isActive,
-      password: "", // Don't pre-fill password
     });
     setIsCreateModalOpen(true);
   };
@@ -188,13 +183,13 @@ export default function UserManagement() {
   };
 
   const filteredUsers = users.filter((user) => {
-    const matchesSearch = 
+    const matchesSearch =
       user.fullName.toLowerCase().includes(searchQuery.toLowerCase()) ||
       user.username.toLowerCase().includes(searchQuery.toLowerCase()) ||
       user.email.toLowerCase().includes(searchQuery.toLowerCase());
-    
+
     const matchesRole = roleFilter === "" || user.role === roleFilter;
-    
+
     return matchesSearch && matchesRole;
   });
 
@@ -233,7 +228,7 @@ export default function UserManagement() {
                       {editingUser ? "تعديل المستخدم" : "إضافة مستخدم جديد"}
                     </DialogTitle>
                   </DialogHeader>
-                  
+
                   <Form {...form}>
                     <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
                       <FormField
@@ -277,23 +272,6 @@ export default function UserManagement() {
                           </FormItem>
                         )}
                       />
-
-                      <FormField
-                        control={form.control}
-                        name="password"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>
-                              كلمة المرور {editingUser && "(اتركها فارغة للاحتفاظ بالحالية)"}
-                            </FormLabel>
-                            <FormControl>
-                              <Input placeholder="أدخل كلمة المرور" type="password" {...field} />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-
                       <FormField
                         control={form.control}
                         name="role"
@@ -316,40 +294,16 @@ export default function UserManagement() {
                           </FormItem>
                         )}
                       />
-
-                      <FormField
-                        control={form.control}
-                        name="isActive"
-                        render={({ field }) => (
-                          <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
-                            <div className="space-y-0.5">
-                              <FormLabel className="text-base">
-                                حساب نشط
-                              </FormLabel>
-                              <div className="text-sm text-gray-600">
-                                هل يمكن لهذا المستخدم تسجيل الدخول؟
-                              </div>
-                            </div>
-                            <FormControl>
-                              <Switch
-                                checked={field.value}
-                                onCheckedChange={field.onChange}
-                              />
-                            </FormControl>
-                          </FormItem>
-                        )}
-                      />
-
                       <div className="flex justify-end space-x-2 space-x-reverse pt-4">
                         <Button type="button" variant="outline" onClick={handleCloseModal}>
                           إلغاء
                         </Button>
-                        <Button 
-                          type="submit" 
+                        <Button
+                          type="submit"
                           disabled={createUserMutation.isPending || updateUserMutation.isPending}
                         >
-                          {(createUserMutation.isPending || updateUserMutation.isPending) 
-                            ? "جاري الحفظ..." 
+                          {(createUserMutation.isPending || updateUserMutation.isPending)
+                            ? "جاري الحفظ..."
                             : editingUser ? "تحديث" : "إنشاء"}
                         </Button>
                       </div>
@@ -420,27 +374,15 @@ export default function UserManagement() {
                         </Badge>
                       </TableCell>
                       <TableCell>
-                        <div className="flex items-center space-x-2 space-x-reverse">
-                          <Switch
-                            checked={user.isActive}
-                            onCheckedChange={(checked) =>
-                              toggleUserStatusMutation.mutate({
-                                id: user.id,
-                                isActive: checked,
-                              })
-                            }
-                            disabled={toggleUserStatusMutation.isPending}
-                          />
-                          <span className="text-sm text-gray-600">
-                            {user.isActive ? "نشط" : "غير نشط"}
-                          </span>
-                        </div>
+                        <Badge className={user.isActive ? "bg-green-100 text-green-800" : "bg-red-100 text-red-800"}>
+                          {user.isActive ? "نشط" : "غير نشط"}
+                        </Badge>
                       </TableCell>
                       <TableCell>
                         <span className="text-sm text-gray-600">
-                          {formatDistanceToNow(new Date(user.createdAt), { 
-                            addSuffix: true, 
-                            locale: ar 
+                          {formatDistanceToNow(new Date(user.createdAt), {
+                            addSuffix: true,
+                            locale: ar
                           })}
                         </span>
                       </TableCell>
@@ -467,7 +409,7 @@ export default function UserManagement() {
                               <AlertDialogHeader>
                                 <AlertDialogTitle>حذف المستخدم</AlertDialogTitle>
                                 <AlertDialogDescription>
-                                  هل أنت متأكد من حذف المستخدم "{user.fullName}"؟ 
+                                  هل أنت متأكد من حذف المستخدم "{user.fullName}"؟
                                   هذا الإجراء لا يمكن التراجع عنه.
                                 </AlertDialogDescription>
                               </AlertDialogHeader>

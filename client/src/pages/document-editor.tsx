@@ -44,6 +44,18 @@ import { type DocumentWithDetails, type Paper } from "@shared/schema";
 import { CATEGORIES, STATUSES, STATUS_COLORS, FILE_TYPE_ICONS, PRIORITY_COLORS } from "@/lib/constants";
 import { formatDistanceToNow } from "date-fns";
 import { ar } from "date-fns/locale";
+import { PaperManagement } from "@/components/paper-management";
+import { EnhancedCommentModal } from "@/components/enhanced-comment-modal";
+import { RecommendationModal } from "@/components/recommendation-modal";
+import { ReportProblemModal } from "@/components/report-problem-modal";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 
 const documentSchema = z.object({
   title: z.string().min(1, "عنوان الوثيقة مطلوب"),
@@ -74,12 +86,28 @@ export default function DocumentEditor({ documentId }: DocumentEditorProps) {
   const { toast } = useToast();
   const { canManageDocuments } = useAuth();
   const queryClient = useQueryClient();
-  const [isEditingDocument, setIsEditingDocument] = useState(false);
+  
+  // Check if edit mode should be enabled from URL parameters
+  const urlParams = new URLSearchParams(window.location.search);
+  const shouldStartInEditMode = urlParams.get('edit') === 'true';
+  
+  const [isEditingDocument, setIsEditingDocument] = useState(shouldStartInEditMode);
   const [isAddingPaper, setIsAddingPaper] = useState(false);
   const [editingPaper, setEditingPaper] = useState<Paper | null>(null);
+  const [isCommentModalOpen, setIsCommentModalOpen] = useState(false);
+  const [isRecommendationModalOpen, setIsRecommendationModalOpen] = useState(false);
+  const [isReportProblemModalOpen, setIsReportProblemModalOpen] = useState(false);
+  const [showDownloadDialog, setShowDownloadDialog] = useState(false);
+  const [showEmptyDocumentDialog, setShowEmptyDocumentDialog] = useState(false);
+  const [isDownloading, setIsDownloading] = useState(false);
 
   const { data: document, isLoading } = useQuery<DocumentWithDetails>({
     queryKey: ["/api/documents", documentId],
+    queryFn: () => fetch(`/api/documents/${documentId}`).then(res => res.json()),
+    staleTime: 0, // Always consider data stale to ensure fresh data
+    refetchOnWindowFocus: true, // Refetch when window gains focus
+    refetchOnMount: true, // Refetch when component mounts
+    // Removed refetchInterval to prevent fetching after deletion
   });
 
   const documentForm = useForm<DocumentFormData>({
@@ -121,6 +149,16 @@ export default function DocumentEditor({ documentId }: DocumentEditorProps) {
     }
   }, [document, documentForm]);
 
+  // Clear URL parameter when exiting edit mode
+  React.useEffect(() => {
+    if (!isEditingDocument && shouldStartInEditMode) {
+      // Remove the edit parameter from URL
+      const url = new URL(window.location.href);
+      url.searchParams.delete('edit');
+      window.history.replaceState({}, '', url.toString());
+    }
+  }, [isEditingDocument, shouldStartInEditMode]);
+
   const updateDocumentMutation = useMutation({
     mutationFn: async (data: DocumentFormData) => {
       return apiRequest("PUT", `/api/documents/${documentId}`, data);
@@ -130,6 +168,9 @@ export default function DocumentEditor({ documentId }: DocumentEditorProps) {
         title: "تم التحديث",
         description: "تم تحديث الوثيقة بنجاح",
       });
+      // Invalidate all document-related queries to ensure fresh data
+      queryClient.invalidateQueries({ queryKey: ["/api/documents"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/dashboard"] });
       queryClient.invalidateQueries({ queryKey: ["/api/documents", documentId] });
       setIsEditingDocument(false);
     },
@@ -151,6 +192,18 @@ export default function DocumentEditor({ documentId }: DocumentEditorProps) {
         title: "تم الحذف",
         description: "تم حذف الوثيقة بنجاح",
       });
+      // Invalidate all document-related queries to ensure fresh data
+      queryClient.invalidateQueries({ queryKey: ["/api/documents"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/dashboard/stats"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/dashboard/user-activity", user?.id] });
+      queryClient.invalidateQueries({ queryKey: ["/api/dashboard/recent-documents"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/documents/favorites", user?.id] });
+      
+      // Force refetch critical queries
+      queryClient.refetchQueries({ queryKey: ["/api/documents"] });
+      queryClient.refetchQueries({ queryKey: ["/api/dashboard/stats"] });
+      queryClient.refetchQueries({ queryKey: ["/api/documents/favorites", user?.id] });
+      
       setLocation("/documents");
     },
     onError: () => {
@@ -161,6 +214,80 @@ export default function DocumentEditor({ documentId }: DocumentEditorProps) {
       });
     },
   });
+
+  // Download functionality
+  const handleDownload = () => {
+    if (!document?.papers || document.papers.length === 0) {
+      setShowEmptyDocumentDialog(true);
+      return;
+    }
+    setShowDownloadDialog(true);
+  };
+
+  const handleDownloadConfirm = async () => {
+    if (!document) return;
+    
+    setIsDownloading(true);
+    try {
+      console.log(`📥 Starting download for document: ${document.id}`);
+      
+      const response = await fetch(`/api/documents/${document.id}/download`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.message || 'Failed to download document');
+      }
+
+      const contentType = response.headers.get('content-type');
+      if (!contentType || !contentType.includes('application/zip')) {
+        throw new Error('Invalid response format');
+      }
+
+      const blob = await response.blob();
+      console.log(`📦 ZIP file size: ${blob.size} bytes`);
+      
+      const url = window.URL.createObjectURL(blob);
+      const a = window.document.createElement('a');
+      a.href = url;
+      a.download = `${document.title.replace(/[^a-zA-Z0-9\u0600-\u06FF]/g, '_')}.zip`;
+      a.style.display = 'none';
+      window.document.body.appendChild(a);
+      a.click();
+      
+      setTimeout(() => {
+        window.URL.revokeObjectURL(url);
+        window.document.body.removeChild(a);
+      }, 100);
+
+      toast({
+        title: "تم التحميل",
+        description: "تم تحميل الوثيقة بنجاح",
+      });
+    } catch (error) {
+      console.error('Download error:', error);
+      toast({
+        title: "خطأ",
+        description: error instanceof Error ? error.message : "فشل في تحميل الوثيقة",
+        variant: "destructive",
+      });
+    } finally {
+      setIsDownloading(false);
+      setShowDownloadDialog(false);
+    }
+  };
+
+  const formatFileSize = (bytes: number): string => {
+    if (bytes === 0) return '0 بايت';
+    const k = 1024;
+    const sizes = ['بايت', 'كيلوبايت', 'ميجابايت', 'جيجابايت'];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+  };
 
   const createPaperMutation = useMutation({
     mutationFn: async (data: PaperFormData) => {
@@ -176,6 +303,9 @@ export default function DocumentEditor({ documentId }: DocumentEditorProps) {
         title: "تم الإضافة",
         description: "تم إضافة الورقة بنجاح",
       });
+      // Invalidate all document-related queries to ensure fresh data
+      queryClient.invalidateQueries({ queryKey: ["/api/documents"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/dashboard"] });
       queryClient.invalidateQueries({ queryKey: ["/api/documents", documentId] });
       setIsAddingPaper(false);
       paperForm.reset();
@@ -198,6 +328,9 @@ export default function DocumentEditor({ documentId }: DocumentEditorProps) {
         title: "تم التحديث",
         description: "تم تحديث الورقة بنجاح",
       });
+      // Invalidate all document-related queries to ensure fresh data
+      queryClient.invalidateQueries({ queryKey: ["/api/documents"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/dashboard"] });
       queryClient.invalidateQueries({ queryKey: ["/api/documents", documentId] });
       setEditingPaper(null);
       paperForm.reset();
@@ -220,6 +353,9 @@ export default function DocumentEditor({ documentId }: DocumentEditorProps) {
         title: "تم الحذف",
         description: "تم حذف الورقة بنجاح",
       });
+      // Invalidate all document-related queries to ensure fresh data
+      queryClient.invalidateQueries({ queryKey: ["/api/documents"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/dashboard"] });
       queryClient.invalidateQueries({ queryKey: ["/api/documents", documentId] });
     },
     onError: () => {
@@ -248,16 +384,11 @@ export default function DocumentEditor({ documentId }: DocumentEditorProps) {
     paperForm.reset({
       title: paper.title,
       content: paper.content || "",
-      fileType: paper.fileType || "pdf",
+      fileType: paper.file_type || "pdf",
     });
     setIsAddingPaper(true);
   };
 
-  const formatFileSize = (bytes?: number) => {
-    if (!bytes) return 'غير محدد';
-    const mb = bytes / (1024 * 1024);
-    return `${mb.toFixed(1)} ميجابايت`;
-  };
 
   const getFileIcon = (fileType?: string) => {
     if (!fileType) return FILE_TYPE_ICONS.default;
@@ -302,7 +433,7 @@ export default function DocumentEditor({ documentId }: DocumentEditorProps) {
     );
   }
 
-  const timeAgo = formatDistanceToNow(new Date(document.createdAt), { 
+  const timeAgo = formatDistanceToNow(new Date(document.created_at), { 
     addSuffix: true, 
     locale: ar 
   });
@@ -331,43 +462,105 @@ export default function DocumentEditor({ documentId }: DocumentEditorProps) {
                       {document.status}
                     </Badge>
                   </div>
-                  {canManageDocuments() && (
-                    <div className="flex items-center space-x-2 space-x-reverse">
+                  <div className="flex flex-wrap items-center gap-2">
+                    {canManageDocuments() && (
+                      <>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => setIsEditingDocument(!isEditingDocument)}
+                          className="flex-shrink-0"
+                        >
+                          <i className="fas fa-edit ml-2"></i>
+                          {isEditingDocument ? "إلغاء" : "تعديل"}
+                        </Button>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={handleDownload}
+                          className="flex-shrink-0"
+                        >
+                          <i className="fas fa-download ml-2"></i>
+                          تحميل
+                        </Button>
+                        <AlertDialog>
+                          <AlertDialogTrigger asChild>
+                            <Button variant="destructive" size="sm" className="flex-shrink-0">
+                              <i className="fas fa-trash ml-2"></i>
+                              حذف
+                            </Button>
+                          </AlertDialogTrigger>
+                          <AlertDialogContent>
+                            <AlertDialogHeader>
+                              <AlertDialogTitle>تأكيد الحذف</AlertDialogTitle>
+                              <AlertDialogDescription>
+                                {document?.is_favorited ? (
+                                  <div className="space-y-3">
+                                    <div className="p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
+                                      <div className="flex items-start space-x-2 space-x-reverse">
+                                        <div className="w-5 h-5 bg-yellow-100 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
+                                          <span className="text-yellow-600 text-xs">⚠️</span>
+                                        </div>
+                                        <div>
+                                          <p className="text-sm font-medium text-yellow-800">تحذير: هذه الوثيقة في قائمة المفضلة</p>
+                                          <p className="text-xs text-yellow-700 mt-1">
+                                            سيتم حذف الوثيقة من المفضلة أيضاً عند الحذف
+                                          </p>
+                                        </div>
+                                      </div>
+                                    </div>
+                                    <p>هل أنت متأكد من حذف هذه الوثيقة؟ هذا الإجراء لا يمكن التراجع عنه.</p>
+                                  </div>
+                                ) : (
+                                  "هل أنت متأكد من حذف هذه الوثيقة؟ هذا الإجراء لا يمكن التراجع عنه."
+                                )}
+                              </AlertDialogDescription>
+                            </AlertDialogHeader>
+                            <AlertDialogFooter>
+                              <AlertDialogCancel>إلغاء</AlertDialogCancel>
+                              <AlertDialogAction
+                                onClick={() => deleteDocumentMutation.mutate()}
+                                className="bg-red-600 hover:bg-red-700"
+                              >
+                                حذف
+                              </AlertDialogAction>
+                            </AlertDialogFooter>
+                          </AlertDialogContent>
+                        </AlertDialog>
+                      </>
+                    )}
+                    
+                    {/* Viewer-specific actions - organized in a responsive grid */}
+                    <div className="flex flex-wrap gap-2">
                       <Button
                         variant="outline"
                         size="sm"
-                        onClick={() => setIsEditingDocument(!isEditingDocument)}
+                        onClick={() => setIsCommentModalOpen(true)}
+                        className="flex-shrink-0"
                       >
-                        <i className="fas fa-edit ml-2"></i>
-                        {isEditingDocument ? "إلغاء" : "تعديل"}
+                        <i className="fas fa-comment ml-2"></i>
+                        تعليق
                       </Button>
-                      <AlertDialog>
-                        <AlertDialogTrigger asChild>
-                          <Button variant="destructive" size="sm">
-                            <i className="fas fa-trash ml-2"></i>
-                            حذف
-                          </Button>
-                        </AlertDialogTrigger>
-                        <AlertDialogContent>
-                          <AlertDialogHeader>
-                            <AlertDialogTitle>تأكيد الحذف</AlertDialogTitle>
-                            <AlertDialogDescription>
-                              هل أنت متأكد من حذف هذه الوثيقة؟ هذا الإجراء لا يمكن التراجع عنه.
-                            </AlertDialogDescription>
-                          </AlertDialogHeader>
-                          <AlertDialogFooter>
-                            <AlertDialogCancel>إلغاء</AlertDialogCancel>
-                            <AlertDialogAction
-                              onClick={() => deleteDocumentMutation.mutate()}
-                              className="bg-red-600 hover:bg-red-700"
-                            >
-                              حذف
-                            </AlertDialogAction>
-                          </AlertDialogFooter>
-                        </AlertDialogContent>
-                      </AlertDialog>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => setIsRecommendationModalOpen(true)}
+                        className="flex-shrink-0"
+                      >
+                        <i className="fas fa-thumbs-up ml-2"></i>
+                        توصية
+                      </Button>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => setIsReportProblemModalOpen(true)}
+                        className="flex-shrink-0"
+                      >
+                        <i className="fas fa-exclamation-triangle ml-2"></i>
+                        إبلاغ عن مشكلة
+                      </Button>
                     </div>
-                  )}
+                  </div>
                 </div>
               </CardHeader>
               <CardContent>
@@ -395,10 +588,10 @@ export default function DocumentEditor({ documentId }: DocumentEditorProps) {
                           render={({ field }) => (
                             <FormItem>
                               <FormLabel>الفئة</FormLabel>
-                              <Select onValueChange={field.onChange} defaultValue={field.value}>
+                              <Select onValueChange={field.onChange} value={field.value}>
                                 <FormControl>
                                   <SelectTrigger>
-                                    <SelectValue />
+                                    <SelectValue placeholder="اختر الفئة" />
                                   </SelectTrigger>
                                 </FormControl>
                                 <SelectContent>
@@ -420,10 +613,10 @@ export default function DocumentEditor({ documentId }: DocumentEditorProps) {
                           render={({ field }) => (
                             <FormItem>
                               <FormLabel>الحالة</FormLabel>
-                              <Select onValueChange={field.onChange} defaultValue={field.value}>
+                              <Select onValueChange={field.onChange} value={field.value}>
                                 <FormControl>
                                   <SelectTrigger>
-                                    <SelectValue />
+                                    <SelectValue placeholder="اختر الحالة" />
                                   </SelectTrigger>
                                 </FormControl>
                                 <SelectContent>
@@ -446,10 +639,10 @@ export default function DocumentEditor({ documentId }: DocumentEditorProps) {
                         render={({ field }) => (
                           <FormItem>
                             <FormLabel>الأولوية</FormLabel>
-                            <Select onValueChange={field.onChange} defaultValue={field.value}>
+                            <Select onValueChange={field.onChange} value={field.value}>
                               <FormControl>
                                 <SelectTrigger>
-                                  <SelectValue />
+                                  <SelectValue placeholder="اختر الأولوية" />
                                 </SelectTrigger>
                               </FormControl>
                               <SelectContent>
@@ -515,7 +708,7 @@ export default function DocumentEditor({ documentId }: DocumentEditorProps) {
                       </div>
                       <div>
                         <span className="font-medium text-gray-700">المنشئ:</span>
-                        <span className="mr-2">{document.creator.fullName}</span>
+                        <span className="mr-2">{document.users?.fullName || 'غير محدد'}</span>
                       </div>
                     </div>
 
@@ -552,169 +745,11 @@ export default function DocumentEditor({ documentId }: DocumentEditorProps) {
             </Card>
 
             {/* Papers Section */}
-            <Card>
-              <CardHeader>
-                <div className="flex items-center justify-between">
-                  <CardTitle>أوراق الوثيقة ({document.papers.length})</CardTitle>
-                  {canManageDocuments() && (
-                    <Button
-                      onClick={() => {
-                        setEditingPaper(null);
-                        paperForm.reset();
-                        setIsAddingPaper(true);
-                      }}
-                    >
-                      <i className="fas fa-plus ml-2"></i>
-                      إضافة ورقة
-                    </Button>
-                  )}
-                </div>
-              </CardHeader>
-              <CardContent>
-                {isAddingPaper && (
-                  <div className="mb-6 p-4 border border-gray-200 rounded-lg bg-gray-50">
-                    <h4 className="font-medium text-gray-900 mb-4">
-                      {editingPaper ? "تعديل الورقة" : "إضافة ورقة جديدة"}
-                    </h4>
-                    <Form {...paperForm}>
-                      <form onSubmit={paperForm.handleSubmit(onSubmitPaper)} className="space-y-4">
-                        <FormField
-                          control={paperForm.control}
-                          name="title"
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel>عنوان الورقة</FormLabel>
-                              <FormControl>
-                                <Input {...field} />
-                              </FormControl>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
-
-                        <FormField
-                          control={paperForm.control}
-                          name="content"
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel>المحتوى</FormLabel>
-                              <FormControl>
-                                <Textarea {...field} />
-                              </FormControl>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
-
-                        <FormField
-                          control={paperForm.control}
-                          name="fileType"
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel>نوع الملف</FormLabel>
-                              <Select onValueChange={field.onChange} defaultValue={field.value}>
-                                <FormControl>
-                                  <SelectTrigger>
-                                    <SelectValue />
-                                  </SelectTrigger>
-                                </FormControl>
-                                <SelectContent>
-                                  <SelectItem value="pdf">PDF</SelectItem>
-                                  <SelectItem value="doc">Word Document</SelectItem>
-                                  <SelectItem value="image">صورة</SelectItem>
-                                </SelectContent>
-                              </Select>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
-
-                        <div className="flex justify-end space-x-2 space-x-reverse">
-                          <Button
-                            type="button"
-                            variant="outline"
-                            onClick={() => {
-                              setIsAddingPaper(false);
-                              setEditingPaper(null);
-                              paperForm.reset();
-                            }}
-                          >
-                            إلغاء
-                          </Button>
-                          <Button type="submit" disabled={createPaperMutation.isPending || updatePaperMutation.isPending}>
-                            {(createPaperMutation.isPending || updatePaperMutation.isPending) ? "جاري الحفظ..." : "حفظ"}
-                          </Button>
-                        </div>
-                      </form>
-                    </Form>
-                  </div>
-                )}
-
-                <div className="space-y-4">
-                  {document.papers.map((paper) => (
-                    <div key={paper.id} className="flex items-center space-x-4 space-x-reverse p-4 border border-gray-200 rounded-lg hover:bg-gray-50">
-                      <div className="w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center flex-shrink-0">
-                        <i className={getFileIcon(paper.fileType ?? undefined)}></i>
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <h4 className="text-sm font-medium text-gray-900 truncate">{paper.title}</h4>
-                        <div className="flex items-center space-x-4 space-x-reverse mt-1">
-                          <p className="text-xs text-gray-500">{paper.fileType?.toUpperCase()}</p>
-                          <p className="text-xs text-gray-500">{formatFileSize(paper.fileSize ?? undefined)}</p>
-                          <p className="text-xs text-gray-500">
-                            {formatDistanceToNow(new Date(paper.createdAt), { addSuffix: true, locale: ar })}
-                          </p>
-                        </div>
-                        {paper.content && (
-                          <p className="text-xs text-gray-600 mt-1 line-clamp-2">{paper.content}</p>
-                        )}
-                      </div>
-                      {canManageDocuments() && (
-                        <div className="flex items-center space-x-2 space-x-reverse">
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => handleEditPaper(paper)}
-                          >
-                            <i className="fas fa-edit"></i>
-                          </Button>
-                          <AlertDialog>
-                            <AlertDialogTrigger asChild>
-                              <Button variant="ghost" size="sm" className="text-red-600 hover:text-red-700">
-                                <i className="fas fa-trash"></i>
-                              </Button>
-                            </AlertDialogTrigger>
-                            <AlertDialogContent>
-                              <AlertDialogHeader>
-                                <AlertDialogTitle>حذف الورقة</AlertDialogTitle>
-                                <AlertDialogDescription>
-                                  هل أنت متأكد من حذف هذه الورقة؟
-                                </AlertDialogDescription>
-                              </AlertDialogHeader>
-                              <AlertDialogFooter>
-                                <AlertDialogCancel>إلغاء</AlertDialogCancel>
-                                <AlertDialogAction
-                                  onClick={() => deletePaperMutation.mutate(paper.id)}
-                                  className="bg-red-600 hover:bg-red-700"
-                                >
-                                  حذف
-                                </AlertDialogAction>
-                              </AlertDialogFooter>
-                            </AlertDialogContent>
-                          </AlertDialog>
-                        </div>
-                      )}
-                    </div>
-                  ))}
-                  {document.papers.length === 0 && (
-                    <div className="text-center py-8 text-gray-500">
-                      <i className="fas fa-file-alt text-gray-300 text-4xl mb-2"></i>
-                      <p>لا توجد أوراق مرفقة</p>
-                    </div>
-                  )}
-                </div>
-              </CardContent>
-            </Card>
+            <PaperManagement 
+              documentId={document.id}
+              blockLabel={document.sections?.label || "A"}
+              documentTitle={document.title}
+            />
           </div>
 
           {/* Document Info Sidebar */}
@@ -724,25 +759,38 @@ export default function DocumentEditor({ documentId }: DocumentEditorProps) {
                 <CardTitle>معلومات الموقع</CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
-                <div>
-                  <span className="text-sm font-medium text-gray-700">الكتلة:</span>
-                  <p className="text-sm text-gray-900">{document.block.label}</p>
-                </div>
-                <Separator />
-                <div>
-                  <span className="text-sm font-medium text-gray-700">الصف:</span>
-                  <p className="text-sm text-gray-900">{document.row.label}</p>
-                </div>
-                <Separator />
-                <div>
-                  <span className="text-sm font-medium text-gray-700">القسم:</span>
-                  <p className="text-sm text-gray-900">{document.section.label}</p>
-                </div>
-                <Separator />
-                <div>
-                  <span className="text-sm font-medium text-gray-700">المرجع الكامل:</span>
-                  <p className="text-sm text-gray-900 font-mono">{document.reference}</p>
-                </div>
+                {(() => {
+                  // Parse the reference to extract block, row, and column
+                  // Format: "X.Y.Z" where X is block, Y is row, Z is column
+                  const referenceMatch = document.reference?.match(/([A-Z])\.(\d+)\.(\d+)/);
+                  const block = referenceMatch ? referenceMatch[1] : 'غير محدد';
+                  const row = referenceMatch ? referenceMatch[2] : 'غير محدد';
+                  const column = referenceMatch ? referenceMatch[3] : 'غير محدد';
+                  
+                  return (
+                    <>
+                      <div>
+                        <span className="text-sm font-medium text-gray-700">الكتلة:</span>
+                        <p className="text-sm text-gray-900">{block}</p>
+                      </div>
+                      <Separator />
+                      <div>
+                        <span className="text-sm font-medium text-gray-700">الصف:</span>
+                        <p className="text-sm text-gray-900">{row}</p>
+                      </div>
+                      <Separator />
+                      <div>
+                        <span className="text-sm font-medium text-gray-700">القسم:</span>
+                        <p className="text-sm text-gray-900">{column}</p>
+                      </div>
+                      <Separator />
+                      <div>
+                        <span className="text-sm font-medium text-gray-700">المرجع الكامل:</span>
+                        <p className="text-sm text-gray-900 font-mono">{document.reference}</p>
+                      </div>
+                    </>
+                  );
+                })()}
               </CardContent>
             </Card>
 
@@ -753,20 +801,20 @@ export default function DocumentEditor({ documentId }: DocumentEditorProps) {
               <CardContent className="space-y-4">
                 <div className="flex justify-between items-center">
                   <span className="text-sm text-gray-600">عدد الأوراق:</span>
-                  <span className="text-sm font-medium">{document.papers.length}</span>
+                  <span className="text-sm font-medium">{document.papers?.length || 0}</span>
                 </div>
                 <Separator />
                 <div className="flex justify-between items-center">
                   <span className="text-sm text-gray-600">الحجم الإجمالي:</span>
                   <span className="text-sm font-medium">
-                    {formatFileSize(document.papers.reduce((total, paper) => total + (paper.fileSize || 0), 0))}
+                    {formatFileSize(document.papers?.reduce((total, paper) => total + (paper.file_size || 0), 0) || 0)}
                   </span>
                 </div>
                 <Separator />
                 <div className="flex justify-between items-center">
                   <span className="text-sm text-gray-600">آخر تحديث:</span>
                   <span className="text-sm font-medium">
-                    {formatDistanceToNow(new Date(document.updatedAt), { addSuffix: true, locale: ar })}
+                    {formatDistanceToNow(new Date(document.updated_at), { addSuffix: true, locale: ar })}
                   </span>
                 </div>
               </CardContent>
@@ -774,6 +822,101 @@ export default function DocumentEditor({ documentId }: DocumentEditorProps) {
           </div>
         </div>
       </div>
+
+      {/* Viewer-specific Modals */}
+      {document && (
+        <>
+          <EnhancedCommentModal
+            isOpen={isCommentModalOpen}
+            onClose={() => setIsCommentModalOpen(false)}
+            documentId={document.id}
+            documentTitle={document.title}
+            papers={document.papers || []}
+          />
+          
+          <RecommendationModal
+            isOpen={isRecommendationModalOpen}
+            onClose={() => setIsRecommendationModalOpen(false)}
+            documentId={document.id}
+            documentTitle={document.title}
+          />
+          
+          <ReportProblemModal
+            isOpen={isReportProblemModalOpen}
+            onClose={() => setIsReportProblemModalOpen(false)}
+            documentId={document.id}
+            documentTitle={document.title}
+          />
+
+          {/* Download Dialog */}
+          <Dialog open={showDownloadDialog} onOpenChange={setShowDownloadDialog}>
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle>تحميل الوثيقة</DialogTitle>
+                <DialogDescription>
+                  سيتم تحميل الوثيقة "{document.title}" كملف مضغوط يحتوي على جميع الأوراق.
+                </DialogDescription>
+              </DialogHeader>
+              <div className="py-4">
+                <div className="bg-gray-50 rounded-lg p-4">
+                  <h4 className="font-medium text-gray-900 mb-2">تفاصيل التحميل:</h4>
+                  <div className="space-y-2 text-sm text-gray-600">
+                    <div className="flex justify-between">
+                      <span>عدد الأوراق:</span>
+                      <span className="font-medium">{document.papers?.length || 0}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span>الحجم الإجمالي:</span>
+                      <span className="font-medium">
+                        {formatFileSize(document.papers?.reduce((total, paper) => total + (paper.file_size || 0), 0) || 0)}
+                      </span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span>اسم الملف:</span>
+                      <span className="font-medium">{document.title}.zip</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <DialogFooter>
+                <Button variant="outline" onClick={() => setShowDownloadDialog(false)}>
+                  إلغاء
+                </Button>
+                <Button
+                  onClick={handleDownloadConfirm}
+                  disabled={isDownloading}
+                  className="bg-green-600 hover:bg-green-700"
+                >
+                  {isDownloading ? "جاري التحميل..." : "تحميل"}
+                </Button>
+              </DialogFooter>
+            </DialogContent>
+          </Dialog>
+
+          {/* Empty Document Dialog */}
+          <Dialog open={showEmptyDocumentDialog} onOpenChange={setShowEmptyDocumentDialog}>
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle>الوثيقة فارغة</DialogTitle>
+                <DialogDescription>
+                  لا يمكن تحميل هذه الوثيقة لأنها لا تحتوي على أوراق.
+                </DialogDescription>
+              </DialogHeader>
+              <div className="py-4">
+                <div className="text-center text-gray-600">
+                  <i className="fas fa-exclamation-triangle text-4xl text-yellow-500 mb-4"></i>
+                  <p>يجب إضافة أوراق إلى الوثيقة قبل إمكانية تحميلها.</p>
+                </div>
+              </div>
+              <DialogFooter>
+                <Button onClick={() => setShowEmptyDocumentDialog(false)}>
+                  موافق
+                </Button>
+              </DialogFooter>
+            </DialogContent>
+          </Dialog>
+        </>
+      )}
     </MainLayout>
   );
 }

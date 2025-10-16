@@ -4,31 +4,63 @@ import { authService } from "@/lib/auth";
 
 interface AuthContextType {
   user: User | null;
-  login: (user: User) => void;
-  logout: () => void;
+  login: (credentials: { email: string; password: string }) => Promise<void>;
+  logout: () => Promise<void>;
   isAuthenticated: boolean;
   hasRole: (role: string) => boolean;
   canManageUsers: () => boolean;
   canManageDocuments: () => boolean;
   canViewDocuments: () => boolean;
+  canPerformActions: () => boolean;
+  isRestricted: () => boolean;
+  loading: boolean;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
-  const [user, setUser] = useState<User | null>(authService.getCurrentUser());
+  const [user, setUser] = useState<User | null>(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    setUser(authService.getCurrentUser());
+    const initializeAuth = async () => {
+      try {
+        // First, check if there's an existing session
+        const currentUser = await authService.getCurrentUser();
+        if (currentUser) {
+          setUser(currentUser);
+          setLoading(false);
+          return; // Exit early if we found a user
+        }
+
+        // If no user found, set loading to false
+        setLoading(false);
+
+        // Then set up the auth state change listener
+        const { data: authListener } = authService.onAuthStateChange((user) => {
+          setUser(user);
+          setLoading(false);
+        });
+
+        return () => {
+          authListener?.subscription.unsubscribe();
+        };
+      } catch (error) {
+        console.error('Auth initialization error:', error);
+        setLoading(false);
+      }
+    };
+
+    initializeAuth();
   }, []);
 
-  const login = (userData: User) => {
-    authService.setCurrentUser(userData);
-    setUser(userData);
+  const login = async (credentials: { email: string; password: string }) => {
+    const user = await authService.login(credentials);
+    setUser(user);
   };
 
-  const logout = () => {
-    authService.logout();
+  const logout = async () => {
+    await authService.logout();
     setUser(null);
   };
 
@@ -36,17 +68,19 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     user,
     login,
     logout,
-    isAuthenticated: authService.isAuthenticated(),
-    hasRole: authService.hasRole.bind(authService),
-    canManageUsers: authService.canManageUsers.bind(authService),
-    canManageDocuments: authService.canManageDocuments.bind(authService),
-    canViewDocuments: authService.canViewDocuments.bind(authService),
+    isAuthenticated: user !== null,
+    hasRole: (role: string) => user?.role === role,
+    canManageUsers: () => user?.role === "admin",
+    canManageDocuments: () =>
+      user?.role === "admin" || user?.role === "archivist",
+    canViewDocuments: () => user !== null,
+    canPerformActions: () => user !== null && !user?.isRestricted,
+    isRestricted: () => user?.isRestricted || false,
+    loading,
   };
 
   return (
-    <AuthContext.Provider value={value}>
-      {children}
-    </AuthContext.Provider>
+    <AuthContext.Provider value={value}>{children}</AuthContext.Provider>
   );
 }
 

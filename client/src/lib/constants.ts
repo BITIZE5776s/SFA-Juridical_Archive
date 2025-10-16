@@ -11,7 +11,8 @@ export const CATEGORIES = [
 export const STATUSES = [
   'نشط',
   'مؤرشف',
-  'معلق'
+  'معلق',
+  'يحتاج مراجعة'
 ] as const;
 
 export const ROLES = [
@@ -29,13 +30,15 @@ export const ROLE_LABELS = {
 export const STATUS_LABELS = {
   'نشط': 'نشط',
   'مؤرشف': 'مؤرشف',
-  'معلق': 'معلق'
+  'معلق': 'معلق',
+  'need revising': 'يحتاج مراجعة'
 } as const;
 
 export const STATUS_COLORS = {
   'نشط': 'bg-green-100 text-green-800',
   'مؤرشف': 'bg-gray-100 text-gray-800',
-  'معلق': 'bg-yellow-100 text-yellow-800'
+  'معلق': 'bg-yellow-100 text-yellow-800',
+  'need revising': 'bg-orange-100 text-orange-800'
 } as const;
 
 export const FILE_TYPE_ICONS = {
