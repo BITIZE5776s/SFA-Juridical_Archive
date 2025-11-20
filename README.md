@@ -206,116 +206,6 @@ This project was conceived, designed, and developed entirely from scratch by MIR
 
 ---
 
-## 🔒 Security: Protecting API Keys and Private Keys
-
-### ⚠️ IMPORTANT: Current Security Issue
-
-**The project currently has hardcoded API keys and database credentials in the source code.** This is a **critical security vulnerability** that must be addressed before deploying to production or sharing the code publicly.
-
-### Files That Need Attention
-
-1. **`server/supabase.ts`** - Contains hardcoded Supabase URL and API keys
-2. **`drizzle.config.ts`** - Contains hardcoded database connection string with credentials
-
-### How to Secure Your Application
-
-#### Step 1: Create Environment Variables
-
-Create a `.env` file in the root directory (and ensure it's in `.gitignore`):
-
-```env
-# Supabase Configuration
-SUPABASE_URL=https://your-project.supabase.co
-SUPABASE_ANON_KEY=your_anon_key_here
-SUPABASE_SERVICE_ROLE_KEY=your_service_role_key_here
-
-# Database Configuration
-DATABASE_URL=postgresql://user:password@host:port/database
-
-# Server Configuration
-PORT=5000
-NODE_ENV=production
-```
-
-#### Step 2: Update `.gitignore`
-
-Ensure your `.gitignore` file includes:
-
-```
-.env
-.env.local
-.env.production
-.env.development
-*.env
-```
-
-#### Step 3: Update Code to Use Environment Variables
-
-**Update `server/supabase.ts`:**
-
-```typescript
-const supabaseUrl = process.env.SUPABASE_URL || "";
-const supabaseAnonKey = process.env.SUPABASE_ANON_KEY || "";
-const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY || "";
-```
-
-**Update `drizzle.config.ts`:**
-
-```typescript
-dbCredentials: {
-  url: process.env.DATABASE_URL || '',
-},
-```
-
-#### Step 4: Remove Hardcoded Values
-
-**Remove all hardcoded API keys, URLs, and credentials from:**
-
-- `server/supabase.ts`
-- `drizzle.config.ts`
-- Any other files containing sensitive information
-
-#### Step 5: Use Environment Variables in Production
-
-For production deployment:
-
-- **Vercel/Netlify**: Add environment variables in the dashboard
-- **Heroku**: Use `heroku config:set KEY=value`
-- **Docker**: Use environment variables in `docker-compose.yml`
-- **Traditional Servers**: Set environment variables in your hosting platform
-
-#### Step 6: Rotate Compromised Keys
-
-If you've already committed sensitive keys to Git:
-
-1. **Immediately rotate all API keys** in your Supabase dashboard
-2. **Change database passwords**
-3. **Review Git history** - Consider using tools like `git-filter-repo` to remove sensitive data from history
-4. **Add `.env` to `.gitignore`** if not already present
-
-### Best Practices
-
-1. ✅ **Never commit `.env` files** to version control
-2. ✅ **Use different keys** for development and production
-3. ✅ **Rotate keys regularly** for security
-4. ✅ **Use secret management services** (AWS Secrets Manager, HashiCorp Vault) for production
-5. ✅ **Limit API key permissions** - Use the minimum required permissions
-6. ✅ **Monitor API usage** - Set up alerts for unusual activity
-7. ✅ **Use environment-specific configurations** - Separate dev/staging/production
-
-### Additional Security Recommendations
-
-- Implement rate limiting on API endpoints
-- Use HTTPS in production
-- Enable CORS properly
-- Implement input sanitization (already using Zod)
-- Regular security audits
-- Keep dependencies updated
-- Use secure session storage
-- Implement proper error handling (don't expose sensitive info in errors)
-
----
-
 ## 📁 Project Structure
 
 ```
@@ -377,16 +267,10 @@ This project is proprietary software developed by MIRINIOUI ZAKARIA. All rights 
 
 ## 📧 Contact
 
-For questions, support, or inquiries about this project, please contact:
-**MIRINIOUI ZAKARIA**
+For questions, support, or inquiries about this project, please contact us at:
+**zakmirinoui@gmail.com** 
 
 ---
 
-## 🙏 Acknowledgments
-
-This project was entirely developed from scratch by MIRINIOUI ZAKARIA, demonstrating full-stack development capabilities including frontend design, backend architecture, database design, and system integration.
-
----
-
-**Version:** 1.1  
-**Last Updated:** 2024
+**Version:** 1.3.1 
+**Last Updated:** 2025
