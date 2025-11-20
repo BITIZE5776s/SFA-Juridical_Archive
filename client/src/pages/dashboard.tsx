@@ -259,9 +259,9 @@ export default function Dashboard() {
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mt-6">
           {/* System Overview */}
-          <div className="lg:col-span-2">
-            <Card className="shadow-lg border-0 bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm">
-              <CardHeader className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-gray-700 dark:to-gray-600 rounded-t-lg">
+          <div className="lg:col-span-2 flex flex-col gap-6">
+            <Card className="shadow-lg border border-slate-100/70 dark:border-slate-800/60 bg-white/80 dark:bg-gray-900/70 backdrop-blur-sm rounded-2xl overflow-hidden transition-colors">
+              <CardHeader className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-gray-800 dark:to-gray-700 rounded-t-2xl p-6 pb-4">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center space-x-3 space-x-reverse">
                     <div className="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center">
@@ -271,7 +271,7 @@ export default function Dashboard() {
                   </div>
                 </div>
               </CardHeader>
-              <CardContent>
+              <CardContent className="p-6 space-y-4">
                 {loadingActivity ? (
                   <div className="text-center py-8 text-gray-500">
                     جاري التحميل...
@@ -359,10 +359,10 @@ export default function Dashboard() {
             </Card>
 
             {/* Three detailed sections for recommendations, reports, and comments - Vertically aligned */}
-            <div className="space-y-4 mt-6">
+            <div className="space-y-4 pt-2">
             {/* Recommendations Section */}
-            <Card className="shadow-lg border-0 bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm">
-              <CardHeader className="bg-gradient-to-r from-yellow-50 to-amber-50 dark:from-gray-700 dark:to-gray-600 rounded-t-lg">
+            <Card className="shadow-lg border border-slate-100/70 dark:border-slate-800/60 bg-white/80 dark:bg-gray-900/70 backdrop-blur-sm rounded-2xl overflow-hidden transition-colors">
+              <CardHeader className="bg-gradient-to-r from-yellow-50 to-amber-50 dark:from-gray-800 dark:to-gray-700 rounded-t-2xl p-6 pb-4">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center space-x-3 space-x-reverse">
                     <div className="w-8 h-8 bg-yellow-100 rounded-lg flex items-center justify-center">
@@ -371,13 +371,13 @@ export default function Dashboard() {
                     <CardTitle className="text-lg font-semibold text-gray-900 dark:text-white">التوصيات</CardTitle>
                   </div>
                   <Link href="/recommendations">
-                    <Button variant="ghost" size="sm" className="text-yellow-600 hover:text-yellow-700 hover:bg-yellow-50 transition-colors">
+                    <Button variant="ghost" size="sm" className="text-yellow-600 hover:text-yellow-700 hover:bg-yellow-50 dark:text-yellow-200 dark:hover:text-yellow-100 dark:hover:bg-yellow-500/10 transition-colors">
                       عرض الكل
                     </Button>
                   </Link>
                 </div>
               </CardHeader>
-              <CardContent>
+              <CardContent className="p-6">
                 {loadingRecommendations ? (
                   <div className="text-center py-4 text-gray-500">
                     جاري التحميل...
@@ -394,9 +394,11 @@ export default function Dashboard() {
                               <p className="text-xs text-gray-500 dark:text-gray-400 mt-1 line-clamp-2">{rec.description}</p>
                               <div className="flex items-center justify-between mt-2">
                                 <span className={`text-xs px-2 py-1 rounded-full ${
-                                  rec.priority === 'high' ? 'bg-red-100 text-red-700' :
-                                  rec.priority === 'medium' ? 'bg-yellow-100 text-yellow-700' :
-                                  'bg-green-100 text-green-700'
+                                  rec.priority === 'high'
+                                    ? 'bg-red-100 text-red-700 dark:bg-red-500/20 dark:text-red-100'
+                                    : rec.priority === 'medium'
+                                    ? 'bg-yellow-100 text-yellow-700 dark:bg-yellow-500/20 dark:text-yellow-100'
+                                    : 'bg-green-100 text-green-700 dark:bg-green-500/20 dark:text-green-100'
                                 }`}>
                                   {rec.priority === 'high' ? 'عالي' : rec.priority === 'medium' ? 'متوسط' : 'منخفض'}
                                 </span>
@@ -419,8 +421,8 @@ export default function Dashboard() {
             </Card>
 
             {/* Reports Section */}
-            <Card className="shadow-lg border-0 bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm">
-              <CardHeader className="bg-gradient-to-r from-red-50 to-pink-50 dark:from-gray-700 dark:to-gray-600 rounded-t-lg">
+            <Card className="shadow-lg border border-slate-100/70 dark:border-slate-800/60 bg-white/80 dark:bg-gray-900/70 backdrop-blur-sm rounded-2xl overflow-hidden transition-colors">
+              <CardHeader className="bg-gradient-to-r from-red-50 to-pink-50 dark:from-gray-800 dark:to-gray-700 rounded-t-2xl p-6 pb-4">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center space-x-3 space-x-reverse">
                     <div className="w-8 h-8 bg-red-100 rounded-lg flex items-center justify-center">
@@ -429,13 +431,13 @@ export default function Dashboard() {
                     <CardTitle className="text-lg font-semibold text-gray-900 dark:text-white">التقارير</CardTitle>
                   </div>
                   <Link href="/reports">
-                    <Button variant="ghost" size="sm" className="text-red-600 hover:text-red-700 hover:bg-red-50 transition-colors">
+                    <Button variant="ghost" size="sm" className="text-red-600 hover:text-red-700 hover:bg-red-50 dark:text-red-200 dark:hover:text-red-100 dark:hover:bg-red-500/10 transition-colors">
                       عرض الكل
                     </Button>
                   </Link>
                 </div>
               </CardHeader>
-              <CardContent>
+              <CardContent className="p-6">
                 {loadingReports ? (
                   <div className="text-center py-4 text-gray-500">
                     جاري التحميل...
@@ -457,10 +459,13 @@ export default function Dashboard() {
                               <p className="text-xs text-gray-500 dark:text-gray-400 mt-1 line-clamp-2">{report.description}</p>
                               <div className="flex items-center justify-between mt-2">
                                 <span className={`text-xs px-2 py-1 rounded-full ${
-                                  report.severity === 'critical' ? 'bg-red-100 text-red-700' :
-                                  report.severity === 'high' ? 'bg-orange-100 text-orange-700' :
-                                  report.severity === 'medium' ? 'bg-yellow-100 text-yellow-700' :
-                                  'bg-green-100 text-green-700'
+                                  report.severity === 'critical'
+                                    ? 'bg-red-100 text-red-700 dark:bg-red-500/20 dark:text-red-100'
+                                    : report.severity === 'high'
+                                    ? 'bg-orange-100 text-orange-700 dark:bg-orange-500/20 dark:text-orange-100'
+                                    : report.severity === 'medium'
+                                    ? 'bg-yellow-100 text-yellow-700 dark:bg-yellow-500/20 dark:text-yellow-100'
+                                    : 'bg-green-100 text-green-700 dark:bg-green-500/20 dark:text-green-100'
                                 }`}>
                                   {report.severity === 'critical' ? 'حرج' : 
                                    report.severity === 'high' ? 'عالي' :
@@ -485,8 +490,8 @@ export default function Dashboard() {
             </Card>
 
             {/* Comments Section */}
-            <Card className="shadow-lg border-0 bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm">
-              <CardHeader className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-gray-700 dark:to-gray-600 rounded-t-lg">
+            <Card className="shadow-lg border border-slate-100/70 dark:border-slate-800/60 bg-white/80 dark:bg-gray-900/70 backdrop-blur-sm rounded-2xl overflow-hidden transition-colors">
+              <CardHeader className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-gray-800 dark:to-gray-700 rounded-t-2xl p-6 pb-4">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center space-x-3 space-x-reverse">
                     <div className="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center">
@@ -495,13 +500,13 @@ export default function Dashboard() {
                     <CardTitle className="text-lg font-semibold text-gray-900 dark:text-white">التعليقات</CardTitle>
                   </div>
                   <Link href="/comments">
-                    <Button variant="ghost" size="sm" className="text-blue-600 hover:text-blue-700 hover:bg-blue-50 transition-colors">
+                    <Button variant="ghost" size="sm" className="text-blue-600 hover:text-blue-700 hover:bg-blue-50 dark:text-blue-200 dark:hover:text-blue-100 dark:hover:bg-blue-500/10 transition-colors">
                       عرض الكل
                     </Button>
                   </Link>
                 </div>
               </CardHeader>
-              <CardContent>
+              <CardContent className="p-6">
                 {loadingComments ? (
                   <div className="text-center py-4 text-gray-500">
                     جاري التحميل...
@@ -519,10 +524,13 @@ export default function Dashboard() {
                               <p className="text-sm text-gray-700 dark:text-gray-300 line-clamp-2">{comment.content}</p>
                               <div className="flex items-center justify-between mt-2">
                                 <span className={`text-xs px-2 py-1 rounded-full ${
-                                  comment.type === 'question' ? 'bg-purple-100 text-purple-700' :
-                                  comment.type === 'suggestion' ? 'bg-green-100 text-green-700' :
-                                  comment.type === 'review' ? 'bg-blue-100 text-blue-700' :
-                                  'bg-gray-100 text-gray-700 dark:bg-gray-700 dark:text-gray-300'
+                                  comment.type === 'question'
+                                    ? 'bg-purple-100 text-purple-700 dark:bg-purple-500/20 dark:text-purple-100'
+                                    : comment.type === 'suggestion'
+                                    ? 'bg-green-100 text-green-700 dark:bg-green-500/20 dark:text-green-100'
+                                    : comment.type === 'review'
+                                    ? 'bg-blue-100 text-blue-700 dark:bg-blue-500/20 dark:text-blue-100'
+                                    : 'bg-gray-100 text-gray-700 dark:bg-gray-500/30 dark:text-gray-100'
                                 }`}>
                                   {comment.type === 'question' ? 'سؤال' :
                                    comment.type === 'suggestion' ? 'اقتراح' :

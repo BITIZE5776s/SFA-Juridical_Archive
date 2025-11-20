@@ -51,7 +51,7 @@ export default function Login() {
   };
 
   return (
-    <div className="min-h-screen w-full flex items-center justify-center bg-gradient-to-br from-blue-50 via-white to-indigo-50 dark:bg-gradient-dark px-4 relative overflow-hidden">
+    <div className="min-h-screen w-full flex items-center justify-center bg-gradient-to-br from-blue-50 via-white to-indigo-50 dark:from-slate-950 dark:via-slate-900 dark:to-slate-950 px-4 relative overflow-hidden text-gray-900 dark:text-slate-100 transition-colors">
       {/* Background Pattern */}
       <div className="absolute inset-0 opacity-40" style={{
         backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23e0e7ff' fill-opacity='0.3'%3E%3Ccircle cx='30' cy='30' r='2'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`
@@ -62,7 +62,7 @@ export default function Login() {
       <div className="absolute bottom-20 right-10 w-32 h-32 bg-indigo-100 rounded-full opacity-20 animate-pulse delay-1000"></div>
       <div className="absolute top-1/3 right-20 w-16 h-16 bg-purple-100 rounded-full opacity-20 animate-pulse delay-500"></div>
       
-      <Card className="w-full max-w-md relative z-10 shadow-2xl border-0 bg-white/80 backdrop-blur-sm">
+      <Card className="w-full max-w-md relative z-10 shadow-2xl border border-transparent bg-white/80 dark:bg-slate-900/90 dark:border-slate-800 dark:shadow-slate-950/40 backdrop-blur-sm rounded-3xl transition-colors">
         <CardHeader className="text-center pb-8">
           <div className="relative">
             <div className="w-20 h-20 bg-gradient-to-br from-blue-600 to-indigo-600 rounded-full flex items-center justify-center mx-auto mb-6 shadow-lg">
@@ -72,10 +72,10 @@ export default function Login() {
               <Shield className="w-3 h-3 text-white" />
             </div>
           </div>
-          <CardTitle className="text-3xl font-bold text-gray-900 mb-2">
+          <CardTitle className="text-3xl font-bold text-gray-900 dark:text-white mb-2">
             نظام إدارة الأرشيف
           </CardTitle>
-          <div className="flex items-center justify-center space-x-2 space-x-reverse text-gray-600">
+          <div className="flex items-center justify-center space-x-2 space-x-reverse text-gray-600 dark:text-gray-300">
             <Building className="w-4 h-4" />
             <p className="text-sm">محكمة الاستئناف بالمغرب</p>
           </div>
@@ -89,16 +89,16 @@ export default function Login() {
                 name="username"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel className="text-sm font-medium text-gray-700 flex items-center space-x-2 space-x-reverse">
+                    <FormLabel className="text-sm font-medium text-gray-700 dark:text-gray-200 flex items-center space-x-2 space-x-reverse">
                       <User className="w-4 h-4" />
                       <span>اسم المستخدم</span>
                     </FormLabel>
                     <FormControl>
                       <div className="relative">
-                        <User className="absolute right-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
+                        <User className="absolute right-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400 dark:text-gray-500" />
                         <Input
                           placeholder="أدخل اسم المستخدم"
-                          className="pr-10 pl-4 h-12 border-gray-200 focus:border-blue-500 focus:ring-blue-500 transition-colors"
+                          className="pr-10 pl-4 h-12 border-gray-200 focus:border-blue-500 focus:ring-blue-500 transition-colors dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100 dark:placeholder:text-slate-500 dark:focus:border-indigo-400 dark:focus:ring-indigo-400"
                           {...field}
                           disabled={loginMutation.isPending}
                         />
@@ -114,24 +114,24 @@ export default function Login() {
                 name="password"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel className="text-sm font-medium text-gray-700 flex items-center space-x-2 space-x-reverse">
+                    <FormLabel className="text-sm font-medium text-gray-700 dark:text-gray-200 flex items-center space-x-2 space-x-reverse">
                       <Lock className="w-4 h-4" />
                       <span>كلمة المرور</span>
                     </FormLabel>
                     <FormControl>
                       <div className="relative">
-                        <Lock className="absolute right-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
+                        <Lock className="absolute right-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400 dark:text-gray-500" />
                         <Input
                           type={showPassword ? "text" : "password"}
                           placeholder="أدخل كلمة المرور"
-                          className="pr-20 pl-4 h-12 border-gray-200 focus:border-blue-500 focus:ring-blue-500 transition-colors"
+                          className="pr-20 pl-4 h-12 border-gray-200 focus:border-blue-500 focus:ring-blue-500 transition-colors dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100 dark:placeholder:text-slate-500 dark:focus:border-indigo-400 dark:focus:ring-indigo-400"
                           {...field}
                           disabled={loginMutation.isPending}
                         />
                         <button
                           type="button"
                           onClick={() => setShowPassword(!showPassword)}
-                          className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors"
+                          className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 dark:text-gray-500 dark:hover:text-gray-300 transition-colors"
                         >
                           {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                         </button>
@@ -164,28 +164,28 @@ export default function Login() {
 
           <div className="mt-8 space-y-4">
             <div className="text-center">
-              <p className="text-sm text-gray-600 mb-3">للدخول التجريبي:</p>
+              <p className="text-sm text-gray-600 dark:text-gray-300 mb-3">للدخول التجريبي:</p>
               <div className="space-y-2 text-xs">
-                <div className="flex items-center justify-between p-2 bg-blue-50 rounded-lg border border-blue-200">
-                  <span className="text-blue-800 font-medium">مدير</span>
-                  <span className="font-mono text-blue-600">admin@court.gov.ma</span>
+                <div className="flex items-center justify-between p-2 bg-blue-50 dark:bg-blue-900/10 rounded-lg border border-blue-200 dark:border-blue-800/60">
+                  <span className="text-blue-800 dark:text-blue-200 font-medium">مدير</span>
+                  <span className="font-mono text-blue-600 dark:text-blue-200">admin@court.gov.ma</span>
                 </div>
-                <div className="flex items-center justify-between p-2 bg-green-50 rounded-lg border border-green-200">
-                  <span className="text-green-800 font-medium">أمين أرشيف</span>
-                  <span className="font-mono text-green-600">archivist@court.gov.ma</span>
+                <div className="flex items-center justify-between p-2 bg-green-50 dark:bg-green-900/10 rounded-lg border border-green-200 dark:border-green-800/60">
+                  <span className="text-green-800 dark:text-green-200 font-medium">أمين أرشيف</span>
+                  <span className="font-mono text-green-600 dark:text-green-200">archivist@court.gov.ma</span>
                 </div>
-                <div className="flex items-center justify-between p-2 bg-purple-50 rounded-lg border border-purple-200">
-                  <span className="text-purple-800 font-medium">مستعرض</span>
-                  <span className="font-mono text-purple-600">viewer@court.gov.ma</span>
+                <div className="flex items-center justify-between p-2 bg-purple-50 dark:bg-purple-900/10 rounded-lg border border-purple-200 dark:border-purple-800/60">
+                  <span className="text-purple-800 dark:text-purple-200 font-medium">مستعرض</span>
+                  <span className="font-mono text-purple-600 dark:text-purple-200">viewer@court.gov.ma</span>
                 </div>
               </div>
             </div>
-            <div className="p-3 bg-amber-50 border border-amber-200 rounded-lg">
+            <div className="p-3 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800/50 rounded-lg">
               <div className="flex items-start space-x-2 space-x-reverse">
-                <div className="w-5 h-5 bg-amber-100 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
-                  <span className="text-amber-600 text-xs">⚠</span>
+                <div className="w-5 h-5 bg-amber-100 dark:bg-amber-800/50 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
+                  <span className="text-amber-600 dark:text-amber-200 text-xs">⚠</span>
                 </div>
-                <p className="text-xs text-amber-800">
+                <p className="text-xs text-amber-800 dark:text-amber-100">
                   إذا لم تعمل هذه البيانات، يرجى إنشاء المستخدمين يدوياً في لوحة تحكم Supabase
                 </p>
               </div>

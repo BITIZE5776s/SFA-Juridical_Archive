@@ -52,28 +52,28 @@ export default function RecommendationsPage() {
   const getStatusBadgeColor = (status: string) => {
     switch (status) {
       case "pending":
-        return "bg-yellow-100 text-yellow-800";
+        return "bg-yellow-100 text-yellow-800 dark:bg-yellow-500/20 dark:text-yellow-100";
       case "approved":
-        return "bg-green-100 text-green-800";
+        return "bg-green-100 text-green-800 dark:bg-green-500/20 dark:text-green-100";
       case "rejected":
-        return "bg-red-100 text-red-800";
+        return "bg-red-100 text-red-800 dark:bg-red-500/20 dark:text-red-100";
       case "implemented":
-        return "bg-blue-100 text-blue-800";
+        return "bg-blue-100 text-blue-800 dark:bg-blue-500/20 dark:text-blue-100";
       default:
-        return "bg-gray-100 text-gray-800";
+        return "bg-gray-100 text-gray-800 dark:bg-gray-500/30 dark:text-gray-100";
     }
   };
 
   const getPriorityBadgeColor = (priority: string) => {
     switch (priority) {
       case "high":
-        return "bg-red-100 text-red-800";
+        return "bg-red-100 text-red-800 dark:bg-red-500/20 dark:text-red-100";
       case "medium":
-        return "bg-yellow-100 text-yellow-800";
+        return "bg-yellow-100 text-yellow-800 dark:bg-yellow-500/20 dark:text-yellow-100";
       case "low":
-        return "bg-green-100 text-green-800";
+        return "bg-green-100 text-green-800 dark:bg-green-500/20 dark:text-green-100";
       default:
-        return "bg-gray-100 text-gray-800";
+        return "bg-gray-100 text-gray-800 dark:bg-gray-500/30 dark:text-gray-100";
     }
   };
 
@@ -121,10 +121,10 @@ export default function RecommendationsPage() {
       <div className="p-6 space-y-6">
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-2xl font-bold text-gray-900">التوصيات</h1>
-            <p className="text-gray-600">إدارة وتتبع التوصيات المقدمة للوثائق</p>
+            <h1 className="text-2xl font-bold text-gray-900 dark:text-white">التوصيات</h1>
+            <p className="text-gray-600 dark:text-gray-300">إدارة وتتبع التوصيات المقدمة للوثائق</p>
           </div>
-          <Button asChild>
+          <Button asChild className="bg-blue-600 hover:bg-blue-700 text-white dark:bg-blue-500 dark:hover:bg-blue-400">
             <Link href="/recommendations/new">
               <i className="fas fa-plus ml-2"></i>
               توصية جديدة
@@ -133,14 +133,14 @@ export default function RecommendationsPage() {
         </div>
 
       {/* Filters */}
-      <Card>
-        <CardHeader>
-          <CardTitle>تصفية التوصيات</CardTitle>
+      <Card className="bg-white/80 dark:bg-gray-900/60 border border-gray-100/60 dark:border-gray-800/70 shadow-sm backdrop-blur">
+        <CardHeader className="p-6 pb-4">
+          <CardTitle className="text-gray-900 dark:text-white">تصفية التوصيات</CardTitle>
         </CardHeader>
-        <CardContent>
+        <CardContent className="p-6 pt-0">
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                 البحث
               </label>
               <Input
@@ -150,7 +150,7 @@ export default function RecommendationsPage() {
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                 الحالة
               </label>
               <Select value={statusFilter} onValueChange={setStatusFilter}>
@@ -167,7 +167,7 @@ export default function RecommendationsPage() {
               </Select>
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                 الأولوية
               </label>
               <Select value={priorityFilter} onValueChange={setPriorityFilter}>
@@ -190,7 +190,7 @@ export default function RecommendationsPage() {
                   setStatusFilter("all");
                   setPriorityFilter("all");
                 }}
-                className="w-full"
+                className="w-full border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-200"
               >
                 <i className="fas fa-refresh ml-2"></i>
                 إعادة تعيين
@@ -203,13 +203,13 @@ export default function RecommendationsPage() {
       {/* Results */}
       <div className="grid gap-4">
         {filteredRecommendations.length === 0 ? (
-          <Card>
-            <CardContent className="text-center py-8">
-              <i className="fas fa-lightbulb text-4xl text-gray-400 mb-4"></i>
-              <h3 className="text-lg font-medium text-gray-900 mb-2">
+          <Card className="bg-white/80 dark:bg-gray-900/60 border border-gray-100/60 dark:border-gray-800/70 shadow-sm backdrop-blur">
+            <CardContent className="text-center py-8 text-gray-900 dark:text-gray-100">
+              <i className="fas fa-lightbulb text-4xl text-gray-400 dark:text-gray-500 mb-4"></i>
+              <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">
                 لا توجد توصيات
               </h3>
-              <p className="text-gray-600">
+              <p className="text-gray-600 dark:text-gray-300">
                 {searchTerm || statusFilter !== "all" || priorityFilter !== "all"
                   ? "لم يتم العثور على توصيات تطابق المعايير المحددة"
                   : "لم يتم إنشاء أي توصيات بعد"}
@@ -218,17 +218,17 @@ export default function RecommendationsPage() {
           </Card>
         ) : (
           filteredRecommendations.map((recommendation) => (
-            <Card key={recommendation.id} className="hover:shadow-md transition-shadow">
-              <CardHeader>
+            <Card key={recommendation.id} className="hover:shadow-md transition-shadow bg-white/90 dark:bg-gray-900/70 border border-gray-100/60 dark:border-gray-800/70 backdrop-blur">
+              <CardHeader className="p-6 pb-4">
                 <div className="flex items-start justify-between">
                   <div className="flex-1">
-                    <CardTitle className="text-lg mb-2">
+                    <CardTitle className="text-lg mb-2 text-gray-900 dark:text-white">
                       {recommendation.title}
                     </CardTitle>
-                    <CardDescription className="text-sm text-gray-600 mb-3">
+                    <CardDescription className="text-sm text-gray-600 dark:text-gray-300 mb-3">
                       {recommendation.description}
                     </CardDescription>
-                    <div className="flex items-center space-x-2 space-x-reverse text-sm text-gray-500">
+                    <div className="flex items-center space-x-2 space-x-reverse text-sm text-gray-500 dark:text-gray-400">
                       <span>
                         <i className="fas fa-user ml-1"></i>
                         {recommendation.users?.full_name || recommendation.users?.username}
@@ -250,27 +250,27 @@ export default function RecommendationsPage() {
                   </div>
                 </div>
               </CardHeader>
-              <CardContent>
+              <CardContent className="p-6 pt-0">
                 <div className="flex items-center justify-between">
-                  <div className="flex items-center space-x-2 space-x-reverse text-sm text-gray-600">
+                  <div className="flex items-center space-x-2 space-x-reverse text-sm text-gray-600 dark:text-gray-300">
                     <i className="fas fa-file-alt"></i>
                     <span>الوثيقة:</span>
                     <Link
                       href={`/documents/${recommendation.document_id}`}
-                      className="text-primary-600 hover:text-primary-800 font-medium"
+                      className="text-primary-600 hover:text-primary-800 dark:text-primary-300 dark:hover:text-primary-200 font-medium"
                     >
                       {recommendation.documents?.title || recommendation.documents?.reference}
                     </Link>
                   </div>
                   <div className="flex space-x-2 space-x-reverse">
-                    <Button variant="outline" size="sm" asChild>
+                    <Button variant="outline" size="sm" asChild className="border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-200">
                       <Link href={`/recommendations/${recommendation.id}`}>
                         <i className="fas fa-eye ml-1"></i>
                         عرض التفاصيل
                       </Link>
                     </Button>
                     {(user?.role === "admin" || user?.role === "archivist") && (
-                      <Button variant="outline" size="sm">
+                      <Button variant="outline" size="sm" className="border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-200">
                         <i className="fas fa-edit ml-1"></i>
                         تعديل
                       </Button>

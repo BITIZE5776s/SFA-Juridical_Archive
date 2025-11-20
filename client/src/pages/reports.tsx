@@ -54,45 +54,45 @@ export default function ReportsPage() {
   const getTypeBadgeColor = (type: string) => {
     switch (type) {
       case "error":
-        return "bg-red-100 text-red-800";
+        return "bg-red-100 text-red-800 dark:bg-red-500/20 dark:text-red-100";
       case "improvement":
-        return "bg-blue-100 text-blue-800";
+        return "bg-blue-100 text-blue-800 dark:bg-blue-500/20 dark:text-blue-100";
       case "complaint":
-        return "bg-orange-100 text-orange-800";
+        return "bg-orange-100 text-orange-800 dark:bg-orange-500/20 dark:text-orange-100";
       case "suggestion":
-        return "bg-green-100 text-green-800";
+        return "bg-green-100 text-green-800 dark:bg-green-500/20 dark:text-green-100";
       default:
-        return "bg-gray-100 text-gray-800";
+        return "bg-gray-100 text-gray-800 dark:bg-gray-500/30 dark:text-gray-100";
     }
   };
 
   const getSeverityBadgeColor = (severity: string) => {
     switch (severity) {
       case "critical":
-        return "bg-red-100 text-red-800";
+        return "bg-red-100 text-red-800 dark:bg-red-500/20 dark:text-red-100";
       case "high":
-        return "bg-orange-100 text-orange-800";
+        return "bg-orange-100 text-orange-800 dark:bg-orange-500/20 dark:text-orange-100";
       case "medium":
-        return "bg-yellow-100 text-yellow-800";
+        return "bg-yellow-100 text-yellow-800 dark:bg-yellow-500/20 dark:text-yellow-100";
       case "low":
-        return "bg-green-100 text-green-800";
+        return "bg-green-100 text-green-800 dark:bg-green-500/20 dark:text-green-100";
       default:
-        return "bg-gray-100 text-gray-800";
+        return "bg-gray-100 text-gray-800 dark:bg-gray-500/30 dark:text-gray-100";
     }
   };
 
   const getStatusBadgeColor = (status: string) => {
     switch (status) {
       case "open":
-        return "bg-red-100 text-red-800";
+        return "bg-red-100 text-red-800 dark:bg-red-500/20 dark:text-red-100";
       case "in_progress":
-        return "bg-yellow-100 text-yellow-800";
+        return "bg-yellow-100 text-yellow-800 dark:bg-yellow-500/20 dark:text-yellow-100";
       case "resolved":
-        return "bg-green-100 text-green-800";
+        return "bg-green-100 text-green-800 dark:bg-green-500/20 dark:text-green-100";
       case "closed":
-        return "bg-gray-100 text-gray-800";
+        return "bg-gray-100 text-gray-800 dark:bg-gray-500/30 dark:text-gray-100";
       default:
-        return "bg-gray-100 text-gray-800";
+        return "bg-gray-100 text-gray-800 dark:bg-gray-500/30 dark:text-gray-100";
     }
   };
 
@@ -157,10 +157,10 @@ export default function ReportsPage() {
       <div className="p-6 space-y-6">
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-2xl font-bold text-gray-900">التقارير</h1>
-            <p className="text-gray-600">إدارة وتتبع التقارير المقدمة للوثائق</p>
+            <h1 className="text-2xl font-bold text-gray-900 dark:text-white">التقارير</h1>
+            <p className="text-gray-600 dark:text-gray-300">إدارة وتتبع التقارير المقدمة للوثائق</p>
           </div>
-          <Button asChild>
+          <Button asChild className="bg-red-600 hover:bg-red-700 text-white dark:bg-red-500 dark:hover:bg-red-400">
             <Link href="/reports/new">
               <i className="fas fa-plus ml-2"></i>
               تقرير جديد
@@ -169,14 +169,14 @@ export default function ReportsPage() {
         </div>
 
       {/* Filters */}
-      <Card>
-        <CardHeader>
-          <CardTitle>تصفية التقارير</CardTitle>
+      <Card className="bg-white/80 dark:bg-gray-900/60 border border-gray-100/60 dark:border-gray-800/70 shadow-sm backdrop-blur">
+        <CardHeader className="p-6 pb-4">
+          <CardTitle className="text-gray-900 dark:text-white">تصفية التقارير</CardTitle>
         </CardHeader>
-        <CardContent>
+        <CardContent className="p-6 pt-0">
           <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                 البحث
               </label>
               <Input
@@ -186,7 +186,7 @@ export default function ReportsPage() {
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                 النوع
               </label>
               <Select value={typeFilter} onValueChange={setTypeFilter}>
@@ -203,7 +203,7 @@ export default function ReportsPage() {
               </Select>
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                 الخطورة
               </label>
               <Select value={severityFilter} onValueChange={setSeverityFilter}>
@@ -220,7 +220,7 @@ export default function ReportsPage() {
               </Select>
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                 الحالة
               </label>
               <Select value={statusFilter} onValueChange={setStatusFilter}>
@@ -245,7 +245,7 @@ export default function ReportsPage() {
                   setSeverityFilter("all");
                   setStatusFilter("all");
                 }}
-                className="w-full"
+                className="w-full border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-200"
               >
                 <i className="fas fa-refresh ml-2"></i>
                 إعادة تعيين
@@ -258,13 +258,13 @@ export default function ReportsPage() {
       {/* Results */}
       <div className="grid gap-4">
         {filteredReports.length === 0 ? (
-          <Card>
-            <CardContent className="text-center py-8">
-              <i className="fas fa-flag text-4xl text-gray-400 mb-4"></i>
-              <h3 className="text-lg font-medium text-gray-900 mb-2">
+          <Card className="bg-white/80 dark:bg-gray-900/60 border border-gray-100/60 dark:border-gray-800/70 shadow-sm backdrop-blur">
+            <CardContent className="text-center py-8 text-gray-900 dark:text-gray-100">
+              <i className="fas fa-flag text-4xl text-gray-400 dark:text-gray-500 mb-4"></i>
+              <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">
                 لا توجد تقارير
               </h3>
-              <p className="text-gray-600">
+              <p className="text-gray-600 dark:text-gray-300">
                 {searchTerm || typeFilter !== "all" || severityFilter !== "all" || statusFilter !== "all"
                   ? "لم يتم العثور على تقارير تطابق المعايير المحددة"
                   : "لم يتم إنشاء أي تقارير بعد"}
@@ -273,17 +273,17 @@ export default function ReportsPage() {
           </Card>
         ) : (
           filteredReports.map((report) => (
-            <Card key={report.id} className="hover:shadow-md transition-shadow">
-              <CardHeader>
+            <Card key={report.id} className="hover:shadow-md transition-shadow bg-white/90 dark:bg-gray-900/70 border border-gray-100/60 dark:border-gray-800/70 backdrop-blur">
+              <CardHeader className="p-6 pb-4">
                 <div className="flex items-start justify-between">
                   <div className="flex-1">
-                    <CardTitle className="text-lg mb-2">
+                    <CardTitle className="text-lg mb-2 text-gray-900 dark:text-white">
                       {report.title}
                     </CardTitle>
-                    <CardDescription className="text-sm text-gray-600 mb-3">
+                    <CardDescription className="text-sm text-gray-600 dark:text-gray-300 mb-3">
                       {report.description}
                     </CardDescription>
-                    <div className="flex items-center space-x-2 space-x-reverse text-sm text-gray-500">
+                    <div className="flex items-center space-x-2 space-x-reverse text-sm text-gray-500 dark:text-gray-400">
                       <span>
                         <i className="fas fa-user ml-1"></i>
                         {report.users?.full_name || report.users?.username}
@@ -308,27 +308,27 @@ export default function ReportsPage() {
                   </div>
                 </div>
               </CardHeader>
-              <CardContent>
+              <CardContent className="p-6 pt-0">
                 <div className="flex items-center justify-between">
-                  <div className="flex items-center space-x-2 space-x-reverse text-sm text-gray-600">
+                  <div className="flex items-center space-x-2 space-x-reverse text-sm text-gray-600 dark:text-gray-300">
                     <i className="fas fa-file-alt"></i>
                     <span>الوثيقة:</span>
                     <Link
                       href={`/documents/${report.document_id}`}
-                      className="text-primary-600 hover:text-primary-800 font-medium"
+                      className="text-primary-600 hover:text-primary-800 dark:text-primary-300 dark:hover:text-primary-200 font-medium"
                     >
                       {report.documents?.title || report.documents?.reference}
                     </Link>
                   </div>
                   <div className="flex space-x-2 space-x-reverse">
-                    <Button variant="outline" size="sm" asChild>
+                    <Button variant="outline" size="sm" asChild className="border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-200">
                       <Link href={`/reports/${report.id}`}>
                         <i className="fas fa-eye ml-1"></i>
                         عرض التفاصيل
                       </Link>
                     </Button>
                     {(user?.role === "admin" || user?.role === "archivist") && (
-                      <Button variant="outline" size="sm">
+                      <Button variant="outline" size="sm" className="border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-200">
                         <i className="fas fa-edit ml-1"></i>
                         تعديل
                       </Button>
