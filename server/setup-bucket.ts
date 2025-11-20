@@ -94,7 +94,7 @@ export async function createCustomBlockFolder(blockLabel: string) {
       });
     
     if (uploadError && !uploadError.message.includes('already exists')) {
-      console.error(`Error creating folder for custom block ${blockLabel}:`, uploadError);
+      console.error("Error creating folder for custom block %s:", blockLabel, uploadError);
       return false;
     } else {
       console.log(`✓ Created folder for custom block ${blockLabel}`);
