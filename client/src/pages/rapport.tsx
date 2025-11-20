@@ -325,21 +325,21 @@ export default function Rapport() {
 
   return (
     <MainLayout>
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 p-8">
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 dark:bg-gradient-dark p-8">
         {/* Header */}
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">تقارير النظام</h1>
-          <p className="text-gray-600">مراقبة وإدارة تقارير النظام والنشاط</p>
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">تقارير النظام</h1>
+          <p className="text-gray-600 dark:text-gray-400">مراقبة وإدارة تقارير النظام والنشاط</p>
         </div>
 
         {/* Stats Cards */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-          <Card className="bg-white/80 backdrop-blur-sm border-0 shadow-xl rounded-2xl">
+          <Card className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm border-0 shadow-xl rounded-2xl">
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm font-medium text-gray-600">إجمالي التقارير</p>
-                  <p className="text-2xl font-bold text-gray-900">{systemReports.length}</p>
+                  <p className="text-sm font-medium text-gray-600 dark:text-gray-400">إجمالي التقارير</p>
+                  <p className="text-2xl font-bold text-gray-900 dark:text-white">{systemReports.length}</p>
                 </div>
                 <div className="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center">
                   <BarChart3 className="w-6 h-6 text-blue-600" />
@@ -348,11 +348,11 @@ export default function Rapport() {
             </CardContent>
           </Card>
 
-          <Card className="bg-white/80 backdrop-blur-sm border-0 shadow-xl rounded-2xl">
+          <Card className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm border-0 shadow-xl rounded-2xl">
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm font-medium text-gray-600">تقارير النشاط</p>
+                  <p className="text-sm font-medium text-gray-600 dark:text-gray-400">تقارير النشاط</p>
                   <p className="text-2xl font-bold text-blue-600">
                     {systemReports.filter(r => r.report_type === 'user_activity').length}
                   </p>
@@ -364,11 +364,11 @@ export default function Rapport() {
             </CardContent>
           </Card>
 
-          <Card className="bg-white/80 backdrop-blur-sm border-0 shadow-xl rounded-2xl">
+          <Card className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm border-0 shadow-xl rounded-2xl">
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm font-medium text-gray-600">تقارير الأمان</p>
+                  <p className="text-sm font-medium text-gray-600 dark:text-gray-400">تقارير الأمان</p>
                   <p className="text-2xl font-bold text-red-600">
                     {systemReports.filter(r => r.report_type === 'security_audit').length}
                   </p>
@@ -380,11 +380,11 @@ export default function Rapport() {
             </CardContent>
           </Card>
 
-          <Card className="bg-white/80 backdrop-blur-sm border-0 shadow-xl rounded-2xl">
+          <Card className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm border-0 shadow-xl rounded-2xl">
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm font-medium text-gray-600">صحة النظام</p>
+                  <p className="text-sm font-medium text-gray-600 dark:text-gray-400">صحة النظام</p>
                   <p className="text-2xl font-bold text-green-600">
                     {systemReports.filter(r => r.report_type === 'system_health').length}
                   </p>
@@ -398,7 +398,7 @@ export default function Rapport() {
         </div>
 
         {/* Actions and Filters */}
-        <Card className="mb-6 bg-white/80 backdrop-blur-sm border-0 shadow-xl rounded-2xl">
+        <Card className="mb-6 bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm border-0 shadow-xl rounded-2xl">
           <CardHeader>
             <div className="flex items-center justify-between">
               <CardTitle className="flex items-center space-x-2 space-x-reverse">
@@ -418,7 +418,7 @@ export default function Rapport() {
                   </DialogHeader>
                   <div className="space-y-4">
                     <div>
-                      <label className="text-sm font-medium text-gray-700 mb-2 block">نوع التقرير</label>
+                      <label className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 block">نوع التقرير</label>
                       <Select value={reportType} onValueChange={setReportType}>
                         <SelectTrigger>
                           <SelectValue placeholder="اختر نوع التقرير" />
@@ -432,7 +432,7 @@ export default function Rapport() {
                       </Select>
                     </div>
                     <div>
-                      <label className="text-sm font-medium text-gray-700 mb-2 block">الفترة الزمنية</label>
+                      <label className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 block">الفترة الزمنية</label>
                       <Select value={dateRange} onValueChange={setDateRange}>
                         <SelectTrigger>
                           <SelectValue placeholder="اختر الفترة الزمنية" />
@@ -490,37 +490,37 @@ export default function Rapport() {
         </Card>
 
         {/* Reports Table */}
-        <Card className="bg-white/80 backdrop-blur-sm border-0 shadow-xl rounded-2xl">
+        <Card className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm border-0 shadow-xl rounded-2xl">
           <CardContent>
             {reportsLoading ? (
               <div className="text-center py-8">
                 <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-primary-600"></div>
-                <p className="mt-2 text-gray-600">جاري التحميل...</p>
+                <p className="mt-2 text-gray-600 dark:text-gray-400">جاري التحميل...</p>
               </div>
             ) : filteredReports.length > 0 ? (
               <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>التقرير</TableHead>
-                    <TableHead>النوع</TableHead>
-                    <TableHead>تاريخ الإنشاء</TableHead>
-                    <TableHead>المنشئ</TableHead>
-                    <TableHead>الإجراءات</TableHead>
+                <TableHeader className="bg-gray-50 dark:bg-gray-700">
+                  <TableRow className="border-gray-200 dark:border-gray-600">
+                    <TableHead className="text-gray-700 dark:text-gray-300">التقرير</TableHead>
+                    <TableHead className="text-gray-700 dark:text-gray-300">النوع</TableHead>
+                    <TableHead className="text-gray-700 dark:text-gray-300">تاريخ الإنشاء</TableHead>
+                    <TableHead className="text-gray-700 dark:text-gray-300">المنشئ</TableHead>
+                    <TableHead className="text-gray-700 dark:text-gray-300">الإجراءات</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
                   {filteredReports.map((report) => {
                     const IconComponent = getReportTypeIcon(report.report_type);
                     return (
-                      <TableRow key={report.id} className="hover:bg-gray-50">
+                      <TableRow key={report.id} className="hover:bg-gray-50 dark:hover:bg-gray-700">
                         <TableCell>
                           <div className="flex items-center space-x-3 space-x-reverse">
                             <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center">
                               <IconComponent className="w-5 h-5 text-white" />
                             </div>
                             <div>
-                              <div className="font-medium">{report.title}</div>
-                              <div className="text-sm text-gray-500">{report.description}</div>
+                              <div className="font-medium text-gray-900 dark:text-white">{report.title}</div>
+                              <div className="text-sm text-gray-500 dark:text-gray-400">{report.description}</div>
                             </div>
                           </div>
                         </TableCell>
@@ -530,12 +530,12 @@ export default function Rapport() {
                           </Badge>
                         </TableCell>
                         <TableCell>
-                          <span className="text-sm text-gray-600">
+                          <span className="text-sm text-gray-600 dark:text-gray-400">
                             {new Date(report.created_at).toLocaleDateString('en-US')} {new Date(report.created_at).toLocaleTimeString('en-US')}
                           </span>
                         </TableCell>
                         <TableCell>
-                          <span className="text-sm text-gray-600">
+                          <span className="text-sm text-gray-600 dark:text-gray-400">
                             {allUsers.find(u => u.id === report.generated_by)?.fullName || 'غير معروف'}
                           </span>
                         </TableCell>
@@ -592,10 +592,10 @@ export default function Rapport() {
                 <div className="w-16 h-16 bg-gradient-to-br from-gray-100 to-gray-200 rounded-2xl flex items-center justify-center mx-auto mb-4">
                   <BarChart3 className="w-8 h-8 text-gray-400" />
                 </div>
-                <h3 className="text-lg font-medium text-gray-900 mb-2">
+                <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">
                   لا توجد تقارير
                 </h3>
-                <p className="text-gray-600 mb-4">
+                <p className="text-gray-600 dark:text-gray-400 mb-4">
                   ابدأ بإنشاء تقرير جديد لمراقبة النظام
                 </p>
                 <Button onClick={() => setIsGenerateModalOpen(true)}>

@@ -255,7 +255,7 @@ export function EnhancedCommentModal({
                       className={`cursor-pointer transition-colors ${
                         selectedMedia.includes(paper.id) 
                           ? 'ring-2 ring-primary-500 bg-primary-50' 
-                          : 'hover:bg-gray-50'
+                          : 'hover:bg-gray-50 dark:hover:bg-gray-700'
                       }`}
                       onClick={() => toggleMediaSelection(paper.id)}
                     >

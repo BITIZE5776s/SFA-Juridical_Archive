@@ -50,14 +50,14 @@ export function CaseListItem({ document }: CaseListItemProps) {
 
   return (
     <div className={`border-r-4 ${getCategoryColor(document.category)} pr-4`}>
-      <h3 className="text-sm font-medium text-gray-900">
+      <h3 className="text-sm font-medium text-gray-900 dark:text-white">
         القضية رقم {document.reference}
       </h3>
-      <p className="text-xs text-gray-600 mt-1">
+      <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">
         {document.title}
       </p>
       <div className="flex items-center justify-between mt-2">
-        <span className="text-xs text-gray-500">{timeAgo}</span>
+        <span className="text-xs text-gray-500 dark:text-gray-400">{timeAgo}</span>
         <Badge className={getStatusColor(document.status)}>
           {document.status}
         </Badge>

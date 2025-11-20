@@ -416,7 +416,7 @@ export default function DocumentEditor({ documentId }: DocumentEditorProps) {
             <CardContent className="pt-6">
               <div className="text-center">
                 <i className="fas fa-file-times text-gray-400 text-4xl mb-4"></i>
-                <h3 className="text-lg font-medium text-gray-900 mb-2">
+                <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">
                   الوثيقة غير موجودة
                 </h3>
                 <p className="text-gray-600 mb-4">
@@ -443,10 +443,10 @@ export default function DocumentEditor({ documentId }: DocumentEditorProps) {
       <div className="p-8">
         {/* Breadcrumb */}
         <nav className="mb-6">
-          <ol className="flex items-center space-x-2 space-x-reverse text-sm text-gray-600">
+          <ol className="flex items-center space-x-2 space-x-reverse text-sm text-gray-600 dark:text-gray-400">
             <li><Button variant="link" className="p-0 h-auto" onClick={() => setLocation("/documents")}>الوثائق</Button></li>
             <li><i className="fas fa-chevron-left text-xs"></i></li>
-            <li className="text-gray-900 font-medium">عرض الوثيقة</li>
+            <li className="text-gray-900 dark:text-white font-medium">عرض الوثيقة</li>
           </ol>
         </nav>
 
@@ -455,14 +455,14 @@ export default function DocumentEditor({ documentId }: DocumentEditorProps) {
           <div className="lg:col-span-2 space-y-6">
             <Card>
               <CardHeader>
-                <div className="flex items-center justify-between">
+                <div className="flex items-center">
                   <div className="flex items-center space-x-3 space-x-reverse">
                     <CardTitle>تفاصيل الوثيقة</CardTitle>
                     <Badge className={STATUS_COLORS[document.status as keyof typeof STATUS_COLORS]}>
                       {document.status}
                     </Badge>
                   </div>
-                  <div className="flex flex-wrap items-center gap-2">
+                  <div className="flex flex-wrap items-center gap-3 mr-4 ml-8">
                     {canManageDocuments() && (
                       <>
                         <Button
@@ -687,38 +687,38 @@ export default function DocumentEditor({ documentId }: DocumentEditorProps) {
                 ) : (
                   <div className="space-y-4">
                     <div>
-                      <h3 className="text-lg font-semibold text-gray-900">{document.title}</h3>
-                      <p className="text-sm text-gray-600 mt-1">الرقم المرجعي: {document.reference}</p>
+                      <h3 className="text-lg font-semibold text-gray-900 dark:text-white">{document.title}</h3>
+                      <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">الرقم المرجعي: {document.reference}</p>
                     </div>
 
                     <div className="grid grid-cols-2 gap-4 text-sm">
                       <div>
-                        <span className="font-medium text-gray-700">الفئة:</span>
+                        <span className="font-medium text-gray-700 dark:text-gray-300">الفئة:</span>
                         <span className="mr-2">{document.category}</span>
                       </div>
                       <div>
-                        <span className="font-medium text-gray-700">الحالة:</span>
+                        <span className="font-medium text-gray-700 dark:text-gray-300">الحالة:</span>
                         <Badge className={`mr-2 ${STATUS_COLORS[document.status as keyof typeof STATUS_COLORS]}`}>
                           {document.status}
                         </Badge>
                       </div>
                       <div>
-                        <span className="font-medium text-gray-700">تاريخ الإنشاء:</span>
+                        <span className="font-medium text-gray-700 dark:text-gray-300">تاريخ الإنشاء:</span>
                         <span className="mr-2">{timeAgo}</span>
                       </div>
                       <div>
-                        <span className="font-medium text-gray-700">المنشئ:</span>
+                        <span className="font-medium text-gray-700 dark:text-gray-300">المنشئ:</span>
                         <span className="mr-2">{document.users?.fullName || 'غير محدد'}</span>
                       </div>
                     </div>
 
                     {document.metadata && (
                       <div className="pt-4 border-t">
-                        <h4 className="font-medium text-gray-900 mb-2">معلومات إضافية</h4>
+                        <h4 className="font-medium text-gray-900 dark:text-white mb-2">معلومات إضافية</h4>
                         <div className="grid grid-cols-2 gap-4 text-sm">
                           {(document.metadata as any)?.priority && (
                             <div>
-                              <span className="font-medium text-gray-700">الأولوية:</span>
+                              <span className="font-medium text-gray-700 dark:text-gray-300">الأولوية:</span>
                               <Badge className={`mr-2 ${PRIORITY_COLORS[(document.metadata as any).priority as keyof typeof PRIORITY_COLORS] || ''}`}>
                                 {(document.metadata as any).priority}
                               </Badge>
@@ -726,15 +726,15 @@ export default function DocumentEditor({ documentId }: DocumentEditorProps) {
                           )}
                           {(document.metadata as any)?.court && (
                             <div>
-                              <span className="font-medium text-gray-700">المحكمة:</span>
+                              <span className="font-medium text-gray-700 dark:text-gray-300">المحكمة:</span>
                               <span className="mr-2">{(document.metadata as any).court}</span>
                             </div>
                           )}
                         </div>
                         {(document.metadata as any)?.notes && (
                           <div className="mt-2">
-                            <span className="font-medium text-gray-700">ملاحظات:</span>
-                            <p className="text-gray-600 mt-1">{(document.metadata as any).notes}</p>
+                            <span className="font-medium text-gray-700 dark:text-gray-300">ملاحظات:</span>
+                            <p className="text-gray-600 dark:text-gray-400 mt-1">{(document.metadata as any).notes}</p>
                           </div>
                         )}
                       </div>
@@ -770,23 +770,23 @@ export default function DocumentEditor({ documentId }: DocumentEditorProps) {
                   return (
                     <>
                       <div>
-                        <span className="text-sm font-medium text-gray-700">الكتلة:</span>
-                        <p className="text-sm text-gray-900">{block}</p>
+                        <span className="text-sm font-medium text-gray-700 dark:text-gray-300">الكتلة:</span>
+                        <p className="text-sm text-gray-900 dark:text-white">{block}</p>
                       </div>
                       <Separator />
                       <div>
-                        <span className="text-sm font-medium text-gray-700">الصف:</span>
-                        <p className="text-sm text-gray-900">{row}</p>
+                        <span className="text-sm font-medium text-gray-700 dark:text-gray-300">الصف:</span>
+                        <p className="text-sm text-gray-900 dark:text-white">{row}</p>
                       </div>
                       <Separator />
                       <div>
-                        <span className="text-sm font-medium text-gray-700">القسم:</span>
-                        <p className="text-sm text-gray-900">{column}</p>
+                        <span className="text-sm font-medium text-gray-700 dark:text-gray-300">القسم:</span>
+                        <p className="text-sm text-gray-900 dark:text-white">{column}</p>
                       </div>
                       <Separator />
                       <div>
-                        <span className="text-sm font-medium text-gray-700">المرجع الكامل:</span>
-                        <p className="text-sm text-gray-900 font-mono">{document.reference}</p>
+                        <span className="text-sm font-medium text-gray-700 dark:text-gray-300">المرجع الكامل:</span>
+                        <p className="text-sm text-gray-900 dark:text-white font-mono">{document.reference}</p>
                       </div>
                     </>
                   );
@@ -800,19 +800,19 @@ export default function DocumentEditor({ documentId }: DocumentEditorProps) {
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="flex justify-between items-center">
-                  <span className="text-sm text-gray-600">عدد الأوراق:</span>
+                  <span className="text-sm text-gray-600 dark:text-gray-300">عدد الأوراق:</span>
                   <span className="text-sm font-medium">{document.papers?.length || 0}</span>
                 </div>
                 <Separator />
                 <div className="flex justify-between items-center">
-                  <span className="text-sm text-gray-600">الحجم الإجمالي:</span>
+                  <span className="text-sm text-gray-600 dark:text-gray-300">الحجم الإجمالي:</span>
                   <span className="text-sm font-medium">
                     {formatFileSize(document.papers?.reduce((total, paper) => total + (paper.file_size || 0), 0) || 0)}
                   </span>
                 </div>
                 <Separator />
                 <div className="flex justify-between items-center">
-                  <span className="text-sm text-gray-600">آخر تحديث:</span>
+                  <span className="text-sm text-gray-600 dark:text-gray-300">آخر تحديث:</span>
                   <span className="text-sm font-medium">
                     {formatDistanceToNow(new Date(document.updated_at), { addSuffix: true, locale: ar })}
                   </span>
@@ -859,8 +859,8 @@ export default function DocumentEditor({ documentId }: DocumentEditorProps) {
               </DialogHeader>
               <div className="py-4">
                 <div className="bg-gray-50 rounded-lg p-4">
-                  <h4 className="font-medium text-gray-900 mb-2">تفاصيل التحميل:</h4>
-                  <div className="space-y-2 text-sm text-gray-600">
+                  <h4 className="font-medium text-gray-900 dark:text-white mb-2">تفاصيل التحميل:</h4>
+                  <div className="space-y-2 text-sm text-gray-600 dark:text-gray-400">
                     <div className="flex justify-between">
                       <span>عدد الأوراق:</span>
                       <span className="font-medium">{document.papers?.length || 0}</span>

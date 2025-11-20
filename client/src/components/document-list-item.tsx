@@ -262,7 +262,7 @@ export function DocumentListItem({
 
   return (
     <div 
-      className="group flex items-center space-x-4 space-x-reverse p-4 hover:bg-gradient-to-r hover:from-blue-50 hover:to-indigo-50 rounded-xl transition-all duration-200 cursor-pointer border border-transparent hover:border-blue-200 hover:shadow-md"
+      className="group flex items-center space-x-4 space-x-reverse p-4 hover:bg-gradient-to-r hover:from-blue-50 hover:to-indigo-50 dark:hover:from-gray-800 dark:hover:to-gray-700 rounded-xl transition-all duration-200 cursor-pointer border border-transparent hover:border-blue-200 dark:hover:border-gray-600 hover:shadow-md"
       onClick={() => onViewDocument?.(document.id)}
     >
       {/* Legal Section Icon */}
@@ -273,7 +273,7 @@ export function DocumentListItem({
       {/* Document Info */}
       <div className="flex-1 min-w-0">
         <div className="flex items-center space-x-2 space-x-reverse mb-2">
-          <h3 className="text-sm font-semibold text-gray-900 truncate group-hover:text-blue-700 transition-colors">
+          <h3 className="text-sm font-semibold text-gray-900 dark:text-white truncate group-hover:text-blue-700 dark:group-hover:text-blue-400 transition-colors">
             {document.title}
           </h3>
           {document.is_favorited && (
@@ -287,7 +287,7 @@ export function DocumentListItem({
           </div>
         </div>
         
-        <div className="flex items-center space-x-4 space-x-reverse text-xs text-gray-500">
+        <div className="flex items-center space-x-4 space-x-reverse text-xs text-gray-500 dark:text-gray-400">
           <span className="flex items-center space-x-1 space-x-reverse">
             <StatusIcon className="w-3 h-3" />
             <span>{statusConfig.label}</span>
@@ -311,13 +311,13 @@ export function DocumentListItem({
             <Button 
               variant="ghost" 
               size="sm" 
-              className="text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg transition-all duration-200"
+              className="text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-all duration-200"
               onClick={(e) => e.stopPropagation()}
             >
               <MoreHorizontal className="w-4 h-4" />
             </Button>
           </DropdownMenuTrigger>
-          <DropdownMenuContent align="end" className="bg-white/95 backdrop-blur-sm border-0 shadow-xl rounded-xl">
+          <DropdownMenuContent align="end" className="bg-white/95 dark:bg-gray-800/95 backdrop-blur-sm border-0 shadow-xl rounded-xl">
             <DropdownMenuItem 
               onClick={(e) => {
                 e.stopPropagation();
@@ -427,9 +427,9 @@ export function DocumentListItem({
             </DialogDescription>
           </DialogHeader>
           <div className="py-4">
-            <div className="bg-gray-50 rounded-lg p-4">
-              <h4 className="font-medium text-gray-900 mb-2">تفاصيل التحميل:</h4>
-              <div className="space-y-2 text-sm text-gray-600">
+            <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-4">
+              <h4 className="font-medium text-gray-900 dark:text-white mb-2">تفاصيل التحميل:</h4>
+              <div className="space-y-2 text-sm text-gray-600 dark:text-gray-400">
                 <div className="flex justify-between">
                   <span>عدد الأوراق:</span>
                   <span className="font-medium">{document.papers?.length || 0}</span>

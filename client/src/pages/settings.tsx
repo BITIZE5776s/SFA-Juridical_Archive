@@ -14,6 +14,7 @@ import { Separator } from "@/components/ui/separator";
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/use-auth";
+import { useTheme } from "@/hooks/use-theme";
 import { z } from "zod";
 import { Link } from "wouter";
 import { 
@@ -49,7 +50,6 @@ import {
   WifiOff,
   MapPin,
   Globe,
-  Shield,
   Heart,
   Star,
   Zap,
@@ -108,7 +108,6 @@ import {
   Menu,
   Home,
   Building,
-  Map,
   Navigation,
   Compass,
   Flag,
@@ -173,40 +172,21 @@ const notificationSettingsSchema = z.object({
   systemMaintenanceNotifications: z.boolean(),
 });
 
-const privacySettingsSchema = z.object({
-  profileVisibility: z.enum(["public", "private", "contacts"]),
-  showOnlineStatus: z.boolean(),
-  allowDirectMessages: z.boolean(),
-  showLastSeen: z.boolean(),
-  allowProfileSearch: z.boolean(),
-  shareActivity: z.boolean(),
-  allowTagging: z.boolean(),
-  showEmail: z.boolean(),
-  showPhone: z.boolean(),
-  allowFriendRequests: z.boolean(),
-  enableTwoFactor: z.boolean(),
-  requirePasswordForSensitive: z.boolean(),
-  autoLogout: z.boolean(),
-  clearHistoryOnExit: z.boolean(),
-  disableTracking: z.boolean(),
-  allowAnalytics: z.boolean(),
-});
-
 type UserProfileData = z.infer<typeof userProfileSchema>;
 type InterfaceSettingsData = z.infer<typeof interfaceSettingsSchema>;
 type NotificationSettingsData = z.infer<typeof notificationSettingsSchema>;
-type PrivacySettingsData = z.infer<typeof privacySettingsSchema>;
 
 export default function Settings() {
   const { user } = useAuth();
   const { toast } = useToast();
-  const [activeTab, setActiveTab] = useState<'profile' | 'interface' | 'notifications' | 'privacy'>('profile');
+  const { theme, setTheme, actualTheme } = useTheme();
+  const [activeTab, setActiveTab] = useState<'profile' | 'interface' | 'notifications'>('profile');
 
   const userProfileForm = useForm<UserProfileData>({
     resolver: zodResolver(userProfileSchema),
     defaultValues: {
-      firstName: user?.firstName || "",
-      lastName: user?.lastName || "",
+      firstName: user?.name?.split(' ')[0] || "",
+      lastName: user?.name?.split(' ').slice(1).join(' ') || "",
       email: user?.email || "",
       phone: "",
       department: "",
@@ -218,7 +198,7 @@ export default function Settings() {
   const interfaceForm = useForm<InterfaceSettingsData>({
     resolver: zodResolver(interfaceSettingsSchema),
     defaultValues: {
-      theme: "light",
+      theme: theme,
       fontSize: "medium",
       colorScheme: "blue",
       layout: "comfortable",
@@ -262,27 +242,6 @@ export default function Settings() {
     },
   });
 
-  const privacyForm = useForm<PrivacySettingsData>({
-    resolver: zodResolver(privacySettingsSchema),
-    defaultValues: {
-      profileVisibility: "contacts",
-      showOnlineStatus: true,
-      allowDirectMessages: true,
-      showLastSeen: false,
-      allowProfileSearch: true,
-      shareActivity: false,
-      allowTagging: true,
-      showEmail: false,
-      showPhone: false,
-      allowFriendRequests: true,
-      enableTwoFactor: false,
-      requirePasswordForSensitive: true,
-      autoLogout: false,
-      clearHistoryOnExit: false,
-      disableTracking: false,
-      allowAnalytics: true,
-    },
-  });
 
   // Fetch current user settings
   const { data: currentSettings } = useQuery({
@@ -369,30 +328,6 @@ export default function Settings() {
     },
   });
 
-  const updatePrivacySettingsMutation = useMutation({
-    mutationFn: async (data: PrivacySettingsData) => {
-      const response = await fetch("/api/user/privacy", {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(data),
-      });
-      if (!response.ok) throw new Error("فشل في حفظ إعدادات الخصوصية");
-      return response.json();
-    },
-    onSuccess: () => {
-      toast({
-        title: "تم الحفظ",
-        description: "تم حفظ إعدادات الخصوصية بنجاح",
-      });
-    },
-    onError: () => {
-      toast({
-        title: "خطأ",
-        description: "فشل في حفظ إعدادات الخصوصية",
-        variant: "destructive",
-      });
-    },
-  });
 
   const onUserProfileSubmit = (data: UserProfileData) => {
     updateUserProfileMutation.mutate(data);
@@ -406,38 +341,35 @@ export default function Settings() {
     updateNotificationSettingsMutation.mutate(data);
   };
 
-  const onPrivacySubmit = (data: PrivacySettingsData) => {
-    updatePrivacySettingsMutation.mutate(data);
-  };
 
   return (
     <MainLayout>
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 p-8">
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 dark:bg-gradient-dark p-8">
         {/* Breadcrumb */}
         <nav className="mb-8">
-          <ol className="flex items-center space-x-2 space-x-reverse text-sm text-gray-600">
+          <ol className="flex items-center space-x-2 space-x-reverse text-sm text-gray-600 dark:text-gray-400">
             <li>
-              <Link href="/dashboard" className="hover:text-primary-600 transition-colors duration-200 flex items-center space-x-1 space-x-reverse">
+              <Link href="/dashboard" className="hover:text-primary-600 dark:hover:text-primary-400 transition-colors duration-200 flex items-center space-x-1 space-x-reverse">
                 <ChevronLeft className="w-4 h-4" />
                 <span>الرئيسية</span>
               </Link>
             </li>
-            <li className="text-gray-400">/</li>
-            <li className="text-gray-900 font-medium">إعداداتي</li>
+            <li className="text-gray-400 dark:text-gray-500">/</li>
+            <li className="text-gray-900 dark:text-white font-medium">إعداداتي</li>
           </ol>
         </nav>
 
         {/* Settings Header */}
         <div className="mb-8">
-          <Card className="bg-white/80 backdrop-blur-sm border-0 shadow-xl rounded-2xl overflow-hidden">
+          <Card className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm border-0 shadow-xl rounded-2xl overflow-hidden">
             <CardContent className="p-8">
               <div className="flex items-center space-x-4 space-x-reverse">
                 <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-purple-600 rounded-2xl flex items-center justify-center shadow-lg">
                   <SettingsIcon className="w-8 h-8 text-white" />
                 </div>
                 <div>
-                  <h1 className="text-3xl font-bold text-gray-900 mb-2">إعداداتي الشخصية</h1>
-                  <p className="text-gray-600">إدارة إعداداتك الشخصية وتفضيلات الواجهة</p>
+                  <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">إعداداتي الشخصية</h1>
+                  <p className="text-gray-600 dark:text-gray-400">إدارة إعداداتك الشخصية وتفضيلات الواجهة</p>
                 </div>
               </div>
             </CardContent>
@@ -446,14 +378,13 @@ export default function Settings() {
 
         {/* Tabs */}
         <div className="mb-8">
-          <Card className="bg-white/60 backdrop-blur-sm border-0 shadow-lg rounded-2xl overflow-hidden">
+          <Card className="bg-white/60 dark:bg-gray-800/60 backdrop-blur-sm border-0 shadow-lg rounded-2xl overflow-hidden">
             <CardContent className="p-2">
               <nav className="flex space-x-2 space-x-reverse">
                 {[
                   { id: 'profile', label: 'الملف الشخصي', icon: User },
                   { id: 'interface', label: 'الواجهة', icon: Palette },
                   { id: 'notifications', label: 'الإشعارات', icon: Bell },
-                  { id: 'privacy', label: 'الخصوصية', icon: Shield },
                 ].map((tab) => {
                   const IconComponent = tab.icon;
                   return (
@@ -463,7 +394,7 @@ export default function Settings() {
                       className={`flex-1 py-3 px-4 rounded-xl font-medium text-sm flex items-center justify-center space-x-2 space-x-reverse transition-all duration-200 ${
                         activeTab === tab.id
                           ? 'bg-gradient-to-r from-blue-500 to-purple-600 text-white shadow-lg transform scale-105'
-                          : 'text-gray-600 hover:text-gray-900 hover:bg-white/50'
+                          : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white hover:bg-white/50 dark:hover:bg-gray-700/50'
                       }`}
                     >
                       <IconComponent className="w-4 h-4" />
@@ -635,17 +566,46 @@ export default function Settings() {
                           name="theme"
                           render={({ field }) => (
                             <FormItem>
-                              <FormLabel>الوضع الافتراضي</FormLabel>
-                              <Select onValueChange={field.onChange} defaultValue={field.value}>
+                              <FormLabel className="flex items-center space-x-2 space-x-reverse">
+                                <span>الوضع الافتراضي</span>
+                                {actualTheme === 'dark' ? (
+                                  <Moon className="w-4 h-4 text-yellow-500" />
+                                ) : (
+                                  <Sun className="w-4 h-4 text-orange-500" />
+                                )}
+                                {theme === 'auto' && <Monitor className="w-4 h-4 text-blue-500" />}
+                              </FormLabel>
+                              <Select 
+                                onValueChange={(value) => {
+                                  field.onChange(value);
+                                  setTheme(value as 'light' | 'dark' | 'auto');
+                                }} 
+                                defaultValue={field.value}
+                              >
                                 <FormControl>
                                   <SelectTrigger>
                                     <SelectValue placeholder="اختر الوضع" />
                                   </SelectTrigger>
                                 </FormControl>
                                 <SelectContent>
-                                  <SelectItem value="light">فاتح</SelectItem>
-                                  <SelectItem value="dark">داكن</SelectItem>
-                                  <SelectItem value="auto">تلقائي</SelectItem>
+                                  <SelectItem value="light">
+                                    <div className="flex items-center space-x-2 space-x-reverse">
+                                      <Sun className="w-4 h-4" />
+                                      <span>فاتح</span>
+                                    </div>
+                                  </SelectItem>
+                                  <SelectItem value="dark">
+                                    <div className="flex items-center space-x-2 space-x-reverse">
+                                      <Moon className="w-4 h-4" />
+                                      <span>داكن</span>
+                                    </div>
+                                  </SelectItem>
+                                  <SelectItem value="auto">
+                                    <div className="flex items-center space-x-2 space-x-reverse">
+                                      <Monitor className="w-4 h-4" />
+                                      <span>تلقائي</span>
+                                    </div>
+                                  </SelectItem>
                                 </SelectContent>
                               </Select>
                               <FormMessage />
@@ -676,54 +636,6 @@ export default function Settings() {
                           )}
                         />
 
-                        <FormField
-                          control={interfaceForm.control}
-                          name="colorScheme"
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel>نظام الألوان</FormLabel>
-                              <Select onValueChange={field.onChange} defaultValue={field.value}>
-                                <FormControl>
-                                  <SelectTrigger>
-                                    <SelectValue placeholder="اختر نظام الألوان" />
-                                  </SelectTrigger>
-                                </FormControl>
-                                <SelectContent>
-                                  <SelectItem value="blue">أزرق</SelectItem>
-                                  <SelectItem value="green">أخضر</SelectItem>
-                                  <SelectItem value="purple">بنفسجي</SelectItem>
-                                  <SelectItem value="orange">برتقالي</SelectItem>
-                                  <SelectItem value="red">أحمر</SelectItem>
-                                  <SelectItem value="pink">وردي</SelectItem>
-                                </SelectContent>
-                              </Select>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
-
-                        <FormField
-                          control={interfaceForm.control}
-                          name="layout"
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel>تخطيط الواجهة</FormLabel>
-                              <Select onValueChange={field.onChange} defaultValue={field.value}>
-                                <FormControl>
-                                  <SelectTrigger>
-                                    <SelectValue placeholder="اختر التخطيط" />
-                                  </SelectTrigger>
-                                </FormControl>
-                                <SelectContent>
-                                  <SelectItem value="compact">مضغوط</SelectItem>
-                                  <SelectItem value="comfortable">مريح</SelectItem>
-                                  <SelectItem value="spacious">واسع</SelectItem>
-                                </SelectContent>
-                              </Select>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
                       </div>
                     </form>
                   </Form>
@@ -739,24 +651,8 @@ export default function Settings() {
                   <div className="space-y-6">
                     <div className="flex items-center justify-between">
                       <div>
-                        <Label className="text-base font-medium">إخفاء الشريط الجانبي</Label>
-                        <p className="text-sm text-gray-600">إخفاء الشريط الجانبي افتراضياً</p>
-                      </div>
-                      <Switch />
-                    </div>
-                    
-                    <div className="flex items-center justify-between">
-                      <div>
                         <Label className="text-base font-medium">عرض الرسوم المتحركة</Label>
                         <p className="text-sm text-gray-600">تفعيل الرسوم المتحركة في الواجهة</p>
-                      </div>
-                      <Switch defaultChecked />
-                    </div>
-                    
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <Label className="text-base font-medium">عرض التلميحات</Label>
-                        <p className="text-sm text-gray-600">عرض تلميحات عند التمرير</p>
                       </div>
                       <Switch defaultChecked />
                     </div>
@@ -779,40 +675,8 @@ export default function Settings() {
                     
                     <div className="flex items-center justify-between">
                       <div>
-                        <Label className="text-base font-medium">عرض الإشعارات</Label>
-                        <p className="text-sm text-gray-600">عرض الإشعارات في الواجهة</p>
-                      </div>
-                      <Switch defaultChecked />
-                    </div>
-                    
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <Label className="text-base font-medium">الوضع المضغوط</Label>
-                        <p className="text-sm text-gray-600">عرض المزيد من المحتوى في مساحة أقل</p>
-                      </div>
-                      <Switch />
-                    </div>
-                    
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <Label className="text-base font-medium">عرض مسار التنقل</Label>
-                        <p className="text-sm text-gray-600">عرض مسار التنقل في أعلى الصفحة</p>
-                      </div>
-                      <Switch defaultChecked />
-                    </div>
-                    
-                    <div className="flex items-center justify-between">
-                      <div>
                         <Label className="text-base font-medium">اختصارات لوحة المفاتيح</Label>
                         <p className="text-sm text-gray-600">تفعيل اختصارات لوحة المفاتيح</p>
-                      </div>
-                      <Switch defaultChecked />
-                    </div>
-                    
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <Label className="text-base font-medium">عرض شريط الحالة</Label>
-                        <p className="text-sm text-gray-600">عرض شريط الحالة في أسفل الشاشة</p>
                       </div>
                       <Switch defaultChecked />
                     </div>
@@ -874,54 +738,6 @@ export default function Settings() {
                     </div>
                     <Switch defaultChecked />
                   </div>
-                  
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <Label className="text-base font-medium">التقارير الأسبوعية</Label>
-                      <p className="text-sm text-gray-600">تلقي تقرير أسبوعي عن النشاط</p>
-                    </div>
-                    <Switch />
-                  </div>
-                  
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <Label className="text-base font-medium">الإشعارات الصوتية</Label>
-                      <p className="text-sm text-gray-600">تشغيل صوت عند وصول إشعار</p>
-                    </div>
-                    <Switch defaultChecked />
-                  </div>
-                  
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <Label className="text-base font-medium">إشعارات سطح المكتب</Label>
-                      <p className="text-sm text-gray-600">عرض الإشعارات على سطح المكتب</p>
-                    </div>
-                    <Switch defaultChecked />
-                  </div>
-                  
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <Label className="text-base font-medium">إشعارات التذكير</Label>
-                      <p className="text-sm text-gray-600">تذكيرات للمهام المهمة</p>
-                    </div>
-                    <Switch defaultChecked />
-                  </div>
-                  
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <Label className="text-base font-medium">إشعارات التعليقات</Label>
-                      <p className="text-sm text-gray-600">إشعار عند إضافة تعليق جديد</p>
-                    </div>
-                    <Switch defaultChecked />
-                  </div>
-                  
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <Label className="text-base font-medium">إشعارات المواعيد النهائية</Label>
-                      <p className="text-sm text-gray-600">تذكير بالمواعيد النهائية</p>
-                    </div>
-                    <Switch defaultChecked />
-                  </div>
                 </div>
 
                 <Button 
@@ -940,150 +756,6 @@ export default function Settings() {
           </div>
         )}
 
-        {/* Privacy Settings Tab */}
-        {activeTab === 'privacy' && (
-          <div className="max-w-4xl">
-            <Card>
-              <CardHeader>
-                <CardTitle>إعدادات الخصوصية والأمان</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-6">
-                  <div className="space-y-4">
-                    <h3 className="text-lg font-medium">إعدادات الملف الشخصي</h3>
-                    <div className="space-y-2">
-                      <Label>رؤية الملف الشخصي</Label>
-                      <Select defaultValue="contacts">
-                        <SelectTrigger>
-                          <SelectValue placeholder="اختر مستوى الرؤية" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="public">عام</SelectItem>
-                          <SelectItem value="contacts">المعرفون فقط</SelectItem>
-                          <SelectItem value="private">خاص</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
-                  </div>
-
-                  <Separator />
-
-                  <div className="space-y-4">
-                    <h3 className="text-lg font-medium">إعدادات النشاط</h3>
-                    <div className="space-y-6">
-                      <div className="flex items-center justify-between">
-                        <div>
-                          <Label className="text-base font-medium">عرض حالة الاتصال</Label>
-                          <p className="text-sm text-gray-600">إظهار أنك متصل حالياً</p>
-                        </div>
-                        <Switch defaultChecked />
-                      </div>
-                      
-                      <div className="flex items-center justify-between">
-                        <div>
-                          <Label className="text-base font-medium">السماح بالرسائل المباشرة</Label>
-                          <p className="text-sm text-gray-600">السماح للمستخدمين بإرسال رسائل مباشرة</p>
-                        </div>
-                        <Switch defaultChecked />
-                      </div>
-                      
-                      <div className="flex items-center justify-between">
-                        <div>
-                          <Label className="text-base font-medium">عرض آخر ظهور</Label>
-                          <p className="text-sm text-gray-600">إظهار وقت آخر نشاط لك</p>
-                        </div>
-                        <Switch />
-                      </div>
-                      
-                      <div className="flex items-center justify-between">
-                        <div>
-                          <Label className="text-base font-medium">السماح بالبحث في الملف الشخصي</Label>
-                          <p className="text-sm text-gray-600">السماح بالبحث عن ملفك الشخصي</p>
-                        </div>
-                        <Switch defaultChecked />
-                      </div>
-                      
-                      <div className="flex items-center justify-between">
-                        <div>
-                          <Label className="text-base font-medium">مشاركة النشاط</Label>
-                          <p className="text-sm text-gray-600">مشاركة نشاطك مع المستخدمين الآخرين</p>
-                        </div>
-                        <Switch />
-                      </div>
-                    </div>
-                  </div>
-
-                  <Separator />
-
-                  <div className="space-y-4">
-                    <h3 className="text-lg font-medium">إعدادات الأمان</h3>
-                    <div className="space-y-6">
-                      <div className="flex items-center justify-between">
-                        <div>
-                          <Label className="text-base font-medium">المصادقة الثنائية</Label>
-                          <p className="text-sm text-gray-600">تفعيل المصادقة الثنائية للحساب</p>
-                        </div>
-                        <Switch />
-                      </div>
-                      
-                      <div className="flex items-center justify-between">
-                        <div>
-                          <Label className="text-base font-medium">طلب كلمة المرور للمعلومات الحساسة</Label>
-                          <p className="text-sm text-gray-600">طلب كلمة المرور للوصول للمعلومات الحساسة</p>
-                        </div>
-                        <Switch defaultChecked />
-                      </div>
-                      
-                      <div className="flex items-center justify-between">
-                        <div>
-                          <Label className="text-base font-medium">تسجيل الخروج التلقائي</Label>
-                          <p className="text-sm text-gray-600">تسجيل الخروج تلقائياً بعد فترة عدم نشاط</p>
-                        </div>
-                        <Switch />
-                      </div>
-                      
-                      <div className="flex items-center justify-between">
-                        <div>
-                          <Label className="text-base font-medium">مسح السجل عند الخروج</Label>
-                          <p className="text-sm text-gray-600">مسح سجل التصفح عند تسجيل الخروج</p>
-                        </div>
-                        <Switch />
-                      </div>
-                      
-                      <div className="flex items-center justify-between">
-                        <div>
-                          <Label className="text-base font-medium">تعطيل التتبع</Label>
-                          <p className="text-sm text-gray-600">منع تتبع نشاطك في النظام</p>
-                        </div>
-                        <Switch />
-                      </div>
-                      
-                      <div className="flex items-center justify-between">
-                        <div>
-                          <Label className="text-base font-medium">السماح بالتحليلات</Label>
-                          <p className="text-sm text-gray-600">السماح بجمع بيانات الاستخدام للتحسين</p>
-                        </div>
-                        <Switch defaultChecked />
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                <Button 
-                  onClick={() => {
-                    toast({
-                      title: "تم الحفظ",
-                      description: "تم حفظ إعدادات الخصوصية بنجاح",
-                    });
-                  }}
-                  className="w-full mt-6"
-                >
-                  حفظ إعدادات الخصوصية
-                </Button>
-              </CardContent>
-            </Card>
-          </div>
-        )}
       </div>
     </MainLayout>
   );

@@ -1,4 +1,4 @@
-import { Search, Bell, ChevronDown, User, Settings, LogOut, Scale, Building } from "lucide-react";
+import { Search, Bell, ChevronDown, User, Settings, LogOut, Scale, Building, Menu, X } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import {
@@ -24,9 +24,11 @@ import { useLocation } from "wouter";
 interface HeaderProps {
   onSearch?: (query: string) => void;
   searchQuery?: string;
+  isSidebarOpen?: boolean;
+  onToggleSidebar?: () => void;
 }
 
-export function Header({ onSearch, searchQuery = "" }: HeaderProps) {
+export function Header({ onSearch, searchQuery = "", isSidebarOpen = true, onToggleSidebar }: HeaderProps) {
   const { user, logout } = useAuth();
   const [, setLocation] = useLocation();
 
@@ -36,19 +38,33 @@ export function Header({ onSearch, searchQuery = "" }: HeaderProps) {
   };
 
   return (
-    <header className="bg-white/80 backdrop-blur-sm shadow-lg border-b border-gray-200 fixed top-0 left-0 right-0 z-50 h-16">
+    <header className="bg-white/80 dark:bg-gray-900/80 backdrop-blur-sm shadow-lg border-b border-gray-200 dark:border-gray-700 fixed top-0 left-0 right-0 z-50 h-16">
       <div className="flex items-center justify-between px-6 h-full">
         <div className="flex items-center space-x-4 space-x-reverse">
+          {/* Sidebar Toggle Button */}
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={onToggleSidebar}
+            className="p-2 hover:bg-gray-100 dark:hover:bg-gray-800 transition-all duration-200"
+          >
+            {isSidebarOpen ? (
+              <X className="w-5 h-5 text-gray-600 dark:text-gray-400 transition-all duration-200" />
+            ) : (
+              <Menu className="w-5 h-5 text-gray-600 dark:text-gray-400 transition-all duration-200" />
+            )}
+          </Button>
+          
           <div className="flex items-center space-x-3 space-x-reverse">
             <div className="w-12 h-12 bg-gradient-to-br from-blue-600 to-indigo-600 rounded-xl flex items-center justify-center shadow-lg">
               <Scale className="w-6 h-6 text-white" />
             </div>
             <div>
-              <h1 className="text-lg font-semibold text-gray-900 flex items-center space-x-2 space-x-reverse">
+              <h1 className="text-lg font-semibold text-gray-900 dark:text-white flex items-center space-x-2 space-x-reverse">
                 <span>الأرشيف القضائي</span>
                 <Building className="w-4 h-4 text-blue-600" />
               </h1>
-              <p className="text-xs text-gray-600">محكمة الاستئناف بالمغرب</p>
+              <p className="text-xs text-gray-600 dark:text-gray-400">محكمة الاستئناف بالمغرب</p>
             </div>
           </div>
         </div>
@@ -62,7 +78,7 @@ export function Header({ onSearch, searchQuery = "" }: HeaderProps) {
             <Input
               type="text"
               placeholder="البحث في الوثائق والقضايا..."
-              className="w-80 pr-10 pl-4 py-2 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-gray-50/80 backdrop-blur-sm transition-all duration-200 hover:bg-white hover:shadow-md"
+              className="w-80 pr-10 pl-4 py-2 border border-gray-300 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-gray-50/80 dark:bg-gray-800/80 backdrop-blur-sm transition-all duration-200 hover:bg-white dark:hover:bg-gray-700 hover:shadow-md text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400"
               value={searchQuery}
               onChange={(e) => onSearch?.(e.target.value)}
             />
@@ -72,7 +88,7 @@ export function Header({ onSearch, searchQuery = "" }: HeaderProps) {
           <Button
             variant="ghost"
             size="sm"
-            className="relative p-3 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-xl transition-all duration-200 hover:shadow-md"
+            className="relative p-3 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-800 rounded-xl transition-all duration-200 hover:shadow-md"
           >
             <Bell className="h-5 w-5" />
             <span className="absolute -top-1 -left-1 w-5 h-5 bg-gradient-to-r from-orange-500 to-red-500 text-white text-xs rounded-full flex items-center justify-center font-medium shadow-lg">
@@ -83,10 +99,10 @@ export function Header({ onSearch, searchQuery = "" }: HeaderProps) {
           {/* User Profile */}
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="ghost" className="flex items-center space-x-3 space-x-reverse hover:bg-gray-50 rounded-xl transition-all duration-200 hover:shadow-md">
+              <Button variant="ghost" className="flex items-center space-x-3 space-x-reverse hover:bg-gray-50 dark:hover:bg-gray-800 rounded-xl transition-all duration-200 hover:shadow-md">
                 <div className="text-right hidden lg:block">
-                  <p className="text-sm font-medium text-gray-900">{user?.fullName}</p>
-                  <div className="text-xs text-gray-600 flex items-center space-x-1 space-x-reverse">
+                  <p className="text-sm font-medium text-gray-900 dark:text-white">{user?.fullName}</p>
+                  <div className="text-xs text-gray-600 dark:text-gray-400 flex items-center space-x-1 space-x-reverse">
                     <span>
                       {user?.role === 'admin' ? 'مدير النظام' :
                         user?.role === 'archivist' ? 'أمين الأرشيف' : 'مستعرض'}
@@ -102,26 +118,26 @@ export function Header({ onSearch, searchQuery = "" }: HeaderProps) {
                     {user?.fullName?.split(' ').map(n => n[0]).join('').slice(0, 2)}
                   </span>
                 </div>
-                <ChevronDown className="h-4 w-4 text-gray-400" />
+                <ChevronDown className="h-4 w-4 text-gray-400 dark:text-gray-500" />
               </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="w-56 bg-white/95 backdrop-blur-sm border-0 shadow-xl rounded-xl">
-              <DropdownMenuItem onClick={() => setLocation("/profile")} className="flex items-center space-x-3 space-x-reverse hover:bg-blue-50 transition-colors">
+            <DropdownMenuContent align="end" className="w-56 bg-white/95 dark:bg-gray-800/95 backdrop-blur-sm border-0 shadow-xl rounded-xl">
+              <DropdownMenuItem onClick={() => setLocation("/profile")} className="flex items-center space-x-3 space-x-reverse hover:bg-blue-50 dark:hover:bg-blue-900/50 transition-colors text-gray-900 dark:text-white">
                 <User className="w-4 h-4 text-blue-600" />
                 <span>الملف الشخصي</span>
               </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => setLocation("/settings")} className="flex items-center space-x-3 space-x-reverse hover:bg-gray-50 transition-colors">
-                <Settings className="w-4 h-4 text-gray-600" />
+              <DropdownMenuItem onClick={() => setLocation("/settings")} className="flex items-center space-x-3 space-x-reverse hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors text-gray-900 dark:text-white">
+                <Settings className="w-4 h-4 text-gray-600 dark:text-gray-400" />
                 <span>الإعدادات</span>
               </DropdownMenuItem>
               <AlertDialog>
                 <AlertDialogTrigger asChild>
-                  <DropdownMenuItem onSelect={(e) => e.preventDefault()} className="flex items-center space-x-3 space-x-reverse hover:bg-red-50 transition-colors text-red-600">
+                  <DropdownMenuItem onSelect={(e) => e.preventDefault()} className="flex items-center space-x-3 space-x-reverse hover:bg-red-50 dark:hover:bg-red-900/50 transition-colors text-red-600">
                     <LogOut className="w-4 h-4" />
                     <span>تسجيل الخروج</span>
                   </DropdownMenuItem>
                 </AlertDialogTrigger>
-                <AlertDialogContent className="bg-white/95 backdrop-blur-sm border-0 shadow-xl rounded-xl">
+                <AlertDialogContent className="bg-white/95 dark:bg-gray-800/95 backdrop-blur-sm border-0 shadow-xl rounded-xl">
                   <AlertDialogHeader>
                     <AlertDialogTitle className="flex items-center space-x-2 space-x-reverse">
                       <LogOut className="w-5 h-5 text-red-600" />

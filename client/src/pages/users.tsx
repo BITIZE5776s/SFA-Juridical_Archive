@@ -565,21 +565,21 @@ export default function Users() {
 
   return (
     <MainLayout>
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 p-8">
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 dark:bg-gradient-dark p-8">
         {/* Header */}
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">إدارة المستخدمين</h1>
-          <p className="text-gray-600">إدارة حسابات المستخدمين وصلاحياتهم في النظام</p>
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">إدارة المستخدمين</h1>
+          <p className="text-gray-600 dark:text-gray-400">إدارة حسابات المستخدمين وصلاحياتهم في النظام</p>
         </div>
 
         {/* Stats Cards */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-          <Card className="bg-white/80 backdrop-blur-sm border-0 shadow-xl rounded-2xl">
+          <Card className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm border-0 shadow-xl rounded-2xl">
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm font-medium text-gray-600">إجمالي المستخدمين</p>
-                  <p className="text-2xl font-bold text-gray-900">{users.length}</p>
+                  <p className="text-sm font-medium text-gray-600 dark:text-gray-300">إجمالي المستخدمين</p>
+                  <p className="text-2xl font-bold text-gray-900 dark:text-white">{users.length}</p>
                 </div>
                 <div className="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center">
                   <UserIcon className="w-6 h-6 text-blue-600" />
@@ -588,11 +588,11 @@ export default function Users() {
             </CardContent>
           </Card>
 
-          <Card className="bg-white/80 backdrop-blur-sm border-0 shadow-xl rounded-2xl">
+          <Card className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm border-0 shadow-xl rounded-2xl">
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm font-medium text-gray-600">المستخدمون النشطون</p>
+                  <p className="text-sm font-medium text-gray-600 dark:text-gray-300">المستخدمون النشطون</p>
                   <p className="text-2xl font-bold text-green-600">
                     {users.filter(u => u?.isActive && !u?.isRestricted).length}
                   </p>
@@ -604,11 +604,11 @@ export default function Users() {
             </CardContent>
           </Card>
 
-          <Card className="bg-white/80 backdrop-blur-sm border-0 shadow-xl rounded-2xl">
+          <Card className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm border-0 shadow-xl rounded-2xl">
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm font-medium text-gray-600">المستخدمون المقيدون</p>
+                  <p className="text-sm font-medium text-gray-600 dark:text-gray-300">المستخدمون المقيدون</p>
                   <p className="text-2xl font-bold text-orange-600">
                     {users.filter(u => u?.isRestricted).length}
                   </p>
@@ -620,11 +620,11 @@ export default function Users() {
             </CardContent>
           </Card>
 
-          <Card className="bg-white/80 backdrop-blur-sm border-0 shadow-xl rounded-2xl">
+          <Card className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm border-0 shadow-xl rounded-2xl">
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm font-medium text-gray-600">المديرون</p>
+                  <p className="text-sm font-medium text-gray-600 dark:text-gray-300">المديرون</p>
                   <p className="text-2xl font-bold text-red-600">
                     {users.filter(u => u?.role === 'admin').length}
                   </p>
@@ -638,7 +638,7 @@ export default function Users() {
         </div>
 
         {/* Filters and Actions */}
-        <Card className="mb-6 bg-white/80 backdrop-blur-sm border-0 shadow-xl rounded-2xl">
+        <Card className="mb-6 bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm border-0 shadow-xl rounded-2xl">
           <CardHeader>
             <div className="flex items-center justify-between">
               <CardTitle className="flex items-center space-x-2 space-x-reverse">
@@ -799,46 +799,46 @@ export default function Users() {
         </Card>
 
         {/* Users Table */}
-        <Card className="bg-white/80 backdrop-blur-sm border-0 shadow-xl rounded-2xl">
+        <Card className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm border-0 shadow-xl rounded-2xl">
           <CardContent>
             {isLoading ? (
               <div className="text-center py-8">
                 <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-primary-600"></div>
-                <p className="mt-2 text-gray-600">جاري التحميل...</p>
+                <p className="mt-2 text-gray-600 dark:text-gray-400">جاري التحميل...</p>
               </div>
             ) : error ? (
               <div className="text-center py-8">
                 <div className="w-16 h-16 bg-red-100 rounded-2xl flex items-center justify-center mx-auto mb-4">
                   <AlertTriangle className="w-8 h-8 text-red-500" />
                 </div>
-                <h3 className="text-lg font-medium text-gray-900 mb-2">خطأ في تحميل البيانات</h3>
-                <p className="text-gray-600 mb-4">حدث خطأ أثناء جلب بيانات المستخدمين</p>
+                <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">خطأ في تحميل البيانات</h3>
+                <p className="text-gray-600 dark:text-gray-400 mb-4">حدث خطأ أثناء جلب بيانات المستخدمين</p>
                 <Button onClick={() => queryClient.invalidateQueries({ queryKey: ["/api/users"] })}>
                   إعادة المحاولة
                 </Button>
               </div>
             ) : filteredUsers.length > 0 ? (
               <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>المستخدم</TableHead>
-                    <TableHead>الدور</TableHead>
-                    <TableHead>الحالة</TableHead>
-                    <TableHead>تاريخ الإنشاء</TableHead>
-                    <TableHead>الإجراءات</TableHead>
+                <TableHeader className="bg-gray-50 dark:bg-gray-700">
+                  <TableRow className="border-gray-200 dark:border-gray-600">
+                    <TableHead className="text-gray-700 dark:text-gray-300">المستخدم</TableHead>
+                    <TableHead className="text-gray-700 dark:text-gray-300">الدور</TableHead>
+                    <TableHead className="text-gray-700 dark:text-gray-300">الحالة</TableHead>
+                    <TableHead className="text-gray-700 dark:text-gray-300">تاريخ الإنشاء</TableHead>
+                    <TableHead className="text-gray-700 dark:text-gray-300">الإجراءات</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
                   {filteredUsers.map((user) => (
-                    <TableRow key={user.id} className="hover:bg-gray-50">
+                    <TableRow key={user.id} className="hover:bg-gray-50 dark:hover:bg-gray-700">
                       <TableCell>
                         <div className="flex items-center space-x-3 space-x-reverse">
                           <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center">
                             <UserIcon className="w-5 h-5 text-white" />
                           </div>
                           <div>
-                            <div className="font-medium">{user.fullName}</div>
-                            <div className="text-sm text-gray-500">
+                            <div className="font-medium text-gray-900 dark:text-white">{user.fullName}</div>
+                            <div className="text-sm text-gray-500 dark:text-gray-400">
                               {user.username} • {user.email}
                             </div>
                           </div>
@@ -853,7 +853,7 @@ export default function Users() {
                         {getStatusBadge(user)}
                       </TableCell>
                       <TableCell>
-                        <span className="text-sm text-gray-600">
+                        <span className="text-sm text-gray-600 dark:text-gray-400">
                           {formatDistanceToNow(new Date(user.createdAt), {
                             addSuffix: true,
                             locale: ar
@@ -953,7 +953,7 @@ export default function Users() {
                 <div className="w-16 h-16 bg-gradient-to-br from-gray-100 to-gray-200 rounded-2xl flex items-center justify-center mx-auto mb-4">
                   <UserIcon className="w-8 h-8 text-gray-400" />
                 </div>
-                <h3 className="text-lg font-medium text-gray-900 mb-2">
+                <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">
                   لم يتم العثور على مستخدمين
                 </h3>
                 <p className="text-gray-600 mb-4">
@@ -991,21 +991,21 @@ export default function Users() {
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                       <div className="space-y-4">
                         <div>
-                          <label className="text-sm font-medium text-gray-600">الاسم الكامل</label>
+                          <label className="text-sm font-medium text-gray-600 dark:text-gray-300">الاسم الكامل</label>
                           <p className="text-lg font-semibold">{selectedUser.fullName}</p>
                         </div>
                         <div>
-                          <label className="text-sm font-medium text-gray-600">اسم المستخدم</label>
+                          <label className="text-sm font-medium text-gray-600 dark:text-gray-300">اسم المستخدم</label>
                           <p className="text-lg">{selectedUser.username}</p>
                         </div>
                         <div>
-                          <label className="text-sm font-medium text-gray-600">البريد الإلكتروني</label>
+                          <label className="text-sm font-medium text-gray-600 dark:text-gray-300">البريد الإلكتروني</label>
                           <p className="text-lg">{selectedUser.email}</p>
                         </div>
                       </div>
                       <div className="space-y-4">
                         <div>
-                          <label className="text-sm font-medium text-gray-600">الدور</label>
+                          <label className="text-sm font-medium text-gray-600 dark:text-gray-300">الدور</label>
                           <div className="mt-1">
                             <Badge className={getRoleBadgeColor(selectedUser.role)}>
                               {ROLE_LABELS[selectedUser.role as keyof typeof ROLE_LABELS]}
@@ -1013,13 +1013,13 @@ export default function Users() {
                           </div>
                         </div>
                         <div>
-                          <label className="text-sm font-medium text-gray-600">الحالة</label>
+                          <label className="text-sm font-medium text-gray-600 dark:text-gray-300">الحالة</label>
                           <div className="mt-1">
                             {getStatusBadge(selectedUser)}
                           </div>
                         </div>
                         <div>
-                          <label className="text-sm font-medium text-gray-600">تاريخ الإنشاء</label>
+                          <label className="text-sm font-medium text-gray-600 dark:text-gray-300">تاريخ الإنشاء</label>
                           <p className="text-lg">
                             {formatDateArabic(selectedUser.createdAt)}
                           </p>
@@ -1043,22 +1043,22 @@ export default function Users() {
                         <div className="text-center p-4 bg-blue-50 rounded-xl">
                           <FileText className="w-8 h-8 text-blue-600 mx-auto mb-2" />
                           <p className="text-2xl font-bold text-blue-600">{userStats.total_documents}</p>
-                          <p className="text-sm text-gray-600">الوثائق</p>
+                          <p className="text-sm text-gray-600 dark:text-gray-300">الوثائق</p>
                         </div>
                         <div className="text-center p-4 bg-green-50 rounded-xl">
                           <MessageSquare className="w-8 h-8 text-green-600 mx-auto mb-2" />
                           <p className="text-2xl font-bold text-green-600">{userStats.total_comments}</p>
-                          <p className="text-sm text-gray-600">التعليقات</p>
+                          <p className="text-sm text-gray-600 dark:text-gray-300">التعليقات</p>
                         </div>
                         <div className="text-center p-4 bg-yellow-50 rounded-xl">
                           <Lightbulb className="w-8 h-8 text-yellow-600 mx-auto mb-2" />
                           <p className="text-2xl font-bold text-yellow-600">{userStats.total_recommendations}</p>
-                          <p className="text-sm text-gray-600">التوصيات</p>
+                          <p className="text-sm text-gray-600 dark:text-gray-300">التوصيات</p>
                         </div>
                         <div className="text-center p-4 bg-red-50 rounded-xl">
                           <Flag className="w-8 h-8 text-red-600 mx-auto mb-2" />
                           <p className="text-2xl font-bold text-red-600">{userStats.total_reports}</p>
-                          <p className="text-sm text-gray-600">التقارير</p>
+                          <p className="text-sm text-gray-600 dark:text-gray-300">التقارير</p>
                         </div>
                       </div>
                     </CardContent>
@@ -1195,7 +1195,7 @@ export default function Users() {
               {/* Password Verification */}
               <div className="space-y-4">
                 <div>
-                  <label className="text-sm font-medium text-gray-700 mb-2 block">
+                  <label className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 block">
                     كلمة المرور للتأكيد
                   </label>
                   <Input
@@ -1208,7 +1208,7 @@ export default function Users() {
                 </div>
 
                 <div>
-                  <label className="text-sm font-medium text-gray-700 mb-2 block">
+                  <label className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 block">
                     اكتب أحد النصوص التالية للتأكيد:
                   </label>
                   <div className="text-xs text-gray-500 mb-2">
@@ -1347,9 +1347,9 @@ export default function Users() {
 
               {/* Role Selection */}
               <div className="space-y-3">
-                <label className="text-sm font-medium text-gray-700">اختر الدور:</label>
+                <label className="text-sm font-medium text-gray-700 dark:text-gray-300">اختر الدور:</label>
                 <div className="space-y-2">
-                  <label className="flex items-center space-x-3 space-x-reverse p-3 border rounded-lg hover:bg-gray-50 cursor-pointer">
+                  <label className="flex items-center space-x-3 space-x-reverse p-3 border rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 cursor-pointer">
                     <input
                       type="radio"
                       name="role"
@@ -1363,7 +1363,7 @@ export default function Users() {
                       <div className="text-sm text-gray-500">صلاحيات كاملة لإدارة النظام</div>
                     </div>
                   </label>
-                  <label className="flex items-center space-x-3 space-x-reverse p-3 border rounded-lg hover:bg-gray-50 cursor-pointer">
+                  <label className="flex items-center space-x-3 space-x-reverse p-3 border rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 cursor-pointer">
                     <input
                       type="radio"
                       name="role"
@@ -1377,7 +1377,7 @@ export default function Users() {
                       <div className="text-sm text-gray-500">إدارة الوثائق والأوراق</div>
                     </div>
                   </label>
-                  <label className="flex items-center space-x-3 space-x-reverse p-3 border rounded-lg hover:bg-gray-50 cursor-pointer">
+                  <label className="flex items-center space-x-3 space-x-reverse p-3 border rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 cursor-pointer">
                     <input
                       type="radio"
                       name="role"

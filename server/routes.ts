@@ -969,6 +969,36 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // User theme preference routes
+  app.put("/api/user/theme", async (req, res) => {
+    try {
+      const { theme } = req.body;
+      
+      // Validate theme value
+      if (!['light', 'dark', 'auto'].includes(theme)) {
+        return res.status(400).json({ error: "قيمة الوضع غير صحيحة" });
+      }
+      
+      // In a real app, you'd save this to the user's profile in the database
+      // For now, just return success
+      res.json({ message: "تم حفظ تفضيل الوضع بنجاح", theme });
+    } catch (error) {
+      console.error("Error saving theme preference:", error);
+      res.status(500).json({ error: "فشل في حفظ تفضيل الوضع" });
+    }
+  });
+
+  app.get("/api/user/theme", async (req, res) => {
+    try {
+      // In a real app, you'd fetch this from the user's profile in the database
+      // For now, return a default theme
+      res.json({ theme: "light" });
+    } catch (error) {
+      console.error("Error fetching theme preference:", error);
+      res.status(500).json({ error: "فشل في جلب تفضيل الوضع" });
+    }
+  });
+
   app.get("/api/user/activity", async (req, res) => {
     try {
       // Return sample activity data

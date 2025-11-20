@@ -370,10 +370,10 @@ export default function Documents() {
         <div className="mb-6">
           <div className="flex items-center justify-between">
             <div>
-              <h1 className="text-2xl font-bold text-gray-900 mb-2">
+              <h1 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">
                 {isFavoritesPage ? "الوثائق المفضلة" : "إدارة الوثائق"}
               </h1>
-              <p className="text-gray-600">
+              <p className="text-gray-600 dark:text-gray-400">
                 {isFavoritesPage 
                   ? "تصفح وإدارة الوثائق المفضلة" 
                   : "تصفح وإدارة جميع وثائق المحكمة"
@@ -416,7 +416,7 @@ export default function Documents() {
             {activeFiltersCount > 0 && (
               <div className="mt-4 p-4 bg-gray-50 rounded-lg">
                 <div className="flex items-center space-x-2 space-x-reverse mb-2">
-                  <span className="text-sm font-medium text-gray-700">المرشحات النشطة:</span>
+                  <span className="text-sm font-medium text-gray-700 dark:text-gray-300">المرشحات النشطة:</span>
                 </div>
                 <div className="flex flex-wrap gap-2">
                   {searchQuery && (
@@ -492,7 +492,7 @@ export default function Documents() {
           <CardContent>
             <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
               <div>
-                <label className="text-sm font-medium text-gray-700 block mb-2">
+                <label className="text-sm font-medium text-gray-700 dark:text-gray-300 block mb-2">
                   البحث
                 </label>
                 <Input
@@ -503,7 +503,7 @@ export default function Documents() {
               </div>
 
               <div>
-                <label className="text-sm font-medium text-gray-700 block mb-2">
+                <label className="text-sm font-medium text-gray-700 dark:text-gray-300 block mb-2">
                   الفئة
                 </label>
                 <Select value={selectedCategory} onValueChange={setSelectedCategory}>
@@ -522,7 +522,7 @@ export default function Documents() {
               </div>
 
               <div>
-                <label className="text-sm font-medium text-gray-700 block mb-2">
+                <label className="text-sm font-medium text-gray-700 dark:text-gray-300 block mb-2">
                   الحالة
                 </label>
                 <Select value={selectedStatus} onValueChange={setSelectedStatus}>
@@ -541,7 +541,7 @@ export default function Documents() {
               </div>
 
               <div>
-                <label className="text-sm font-medium text-gray-700 block mb-2">
+                <label className="text-sm font-medium text-gray-700 dark:text-gray-300 block mb-2">
                   القسم
                 </label>
                 <Input
@@ -707,7 +707,7 @@ export default function Documents() {
             <div className="py-4">
               <div className="bg-gray-50 rounded-lg p-4">
                 <h4 className="font-medium text-gray-900 mb-2">تفاصيل التحميل:</h4>
-                <div className="space-y-2 text-sm text-gray-600">
+                <div className="space-y-2 text-sm text-gray-600 dark:text-gray-400">
                   <div className="flex justify-between">
                     <span>عدد الأوراق:</span>
                     <span className="font-medium">{documentToDownload?.papers?.length || 0}</span>

@@ -203,15 +203,15 @@ export default function Profile() {
       <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 p-8">
         {/* Breadcrumb */}
         <nav className="mb-8">
-          <ol className="flex items-center space-x-2 space-x-reverse text-sm text-gray-600">
+          <ol className="flex items-center space-x-2 space-x-reverse text-sm text-gray-600 dark:text-gray-400">
             <li>
-              <Link href="/dashboard" className="hover:text-primary-600 transition-colors duration-200 flex items-center space-x-1 space-x-reverse">
+              <Link href="/dashboard" className="hover:text-primary-600 dark:hover:text-primary-400 transition-colors duration-200 flex items-center space-x-1 space-x-reverse">
                 <ChevronLeft className="w-4 h-4" />
                 <span>الرئيسية</span>
               </Link>
             </li>
-            <li className="text-gray-400">/</li>
-            <li className="text-gray-900 font-medium">الملف الشخصي</li>
+            <li className="text-gray-400 dark:text-gray-500">/</li>
+            <li className="text-gray-900 dark:text-white font-medium">الملف الشخصي</li>
           </ol>
         </nav>
 
@@ -232,7 +232,7 @@ export default function Profile() {
                   <h1 className="text-3xl font-bold text-gray-900 mb-2">{user?.fullName}</h1>
                   <div className="flex items-center space-x-2 space-x-reverse mb-4">
                     <Mail className="w-4 h-4 text-gray-500" />
-                    <p className="text-gray-600">{user?.email}</p>
+                    <p className="text-gray-600 dark:text-gray-400">{user?.email}</p>
                   </div>
                   <div className="flex items-center space-x-3 space-x-reverse">
                     <Badge className={`${getRoleBadgeColor(user?.role || '')} px-3 py-1 rounded-full font-medium`}>
@@ -335,7 +335,7 @@ export default function Profile() {
                       className={`flex-1 py-3 px-4 rounded-xl font-medium text-sm flex items-center justify-center space-x-2 space-x-reverse transition-all duration-200 ${
                         activeTab === tab.id
                           ? 'bg-gradient-to-r from-blue-500 to-purple-600 text-white shadow-lg transform scale-105'
-                          : 'text-gray-600 hover:text-gray-900 hover:bg-white/50'
+                          : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white hover:bg-white/50 dark:hover:bg-gray-700/50'
                       }`}
                     >
                       <IconComponent className="w-4 h-4" />
@@ -368,7 +368,7 @@ export default function Profile() {
                           name="fullName"
                           render={({ field }) => (
                             <FormItem>
-                              <FormLabel className="flex items-center space-x-2 space-x-reverse text-sm font-medium text-gray-700">
+                              <FormLabel className="flex items-center space-x-2 space-x-reverse text-sm font-medium text-gray-700 dark:text-gray-300">
                                 <User className="w-4 h-4" />
                                 <span>الاسم الكامل</span>
                               </FormLabel>
@@ -384,7 +384,7 @@ export default function Profile() {
                           name="email"
                           render={({ field }) => (
                             <FormItem>
-                              <FormLabel className="flex items-center space-x-2 space-x-reverse text-sm font-medium text-gray-700">
+                              <FormLabel className="flex items-center space-x-2 space-x-reverse text-sm font-medium text-gray-700 dark:text-gray-300">
                                 <Mail className="w-4 h-4" />
                                 <span>البريد الإلكتروني</span>
                               </FormLabel>
@@ -400,7 +400,7 @@ export default function Profile() {
                           name="username"
                           render={({ field }) => (
                             <FormItem>
-                              <FormLabel className="flex items-center space-x-2 space-x-reverse text-sm font-medium text-gray-700">
+                              <FormLabel className="flex items-center space-x-2 space-x-reverse text-sm font-medium text-gray-700 dark:text-gray-300">
                                 <User className="w-4 h-4" />
                                 <span>اسم المستخدم</span>
                               </FormLabel>
@@ -416,7 +416,7 @@ export default function Profile() {
                           name="phone"
                           render={({ field }) => (
                             <FormItem>
-                              <FormLabel className="flex items-center space-x-2 space-x-reverse text-sm font-medium text-gray-700">
+                              <FormLabel className="flex items-center space-x-2 space-x-reverse text-sm font-medium text-gray-700 dark:text-gray-300">
                                 <Phone className="w-4 h-4" />
                                 <span>رقم الهاتف</span>
                               </FormLabel>
@@ -432,7 +432,7 @@ export default function Profile() {
                           name="department"
                           render={({ field }) => (
                             <FormItem>
-                              <FormLabel className="flex items-center space-x-2 space-x-reverse text-sm font-medium text-gray-700">
+                              <FormLabel className="flex items-center space-x-2 space-x-reverse text-sm font-medium text-gray-700 dark:text-gray-300">
                                 <Building className="w-4 h-4" />
                                 <span>القسم</span>
                               </FormLabel>
@@ -469,21 +469,21 @@ export default function Profile() {
                   <div className="flex justify-between items-center p-3 bg-blue-50 rounded-xl">
                     <div className="flex items-center space-x-2 space-x-reverse">
                       <FileText className="w-4 h-4 text-blue-600" />
-                      <span className="text-sm text-gray-700">الوثائق المضافة</span>
+                      <span className="text-sm text-gray-700 dark:text-gray-300">الوثائق المضافة</span>
                     </div>
                     <span className="font-bold text-blue-600 text-lg">24</span>
                   </div>
                   <div className="flex justify-between items-center p-3 bg-purple-50 rounded-xl">
                     <div className="flex items-center space-x-2 space-x-reverse">
                       <Clock className="w-4 h-4 text-purple-600" />
-                      <span className="text-sm text-gray-700">آخر نشاط</span>
+                      <span className="text-sm text-gray-700 dark:text-gray-300">آخر نشاط</span>
                     </div>
                     <span className="font-bold text-purple-600">منذ ساعتين</span>
                   </div>
                   <div className="flex justify-between items-center p-3 bg-green-50 rounded-xl">
                     <div className="flex items-center space-x-2 space-x-reverse">
                       <CheckCircle className="w-4 h-4 text-green-600" />
-                      <span className="text-sm text-gray-700">حالة الحساب</span>
+                      <span className="text-sm text-gray-700 dark:text-gray-300">حالة الحساب</span>
                     </div>
                     <Badge className="bg-green-100 text-green-800 px-3 py-1 rounded-full">نشط</Badge>
                   </div>
@@ -501,14 +501,14 @@ export default function Profile() {
                   <div className="flex items-center justify-between p-3 bg-green-50 rounded-xl">
                     <div className="flex items-center space-x-2 space-x-reverse">
                       <CheckCircle className="w-4 h-4 text-green-600" />
-                      <span className="text-sm text-gray-700">تسجيل الدخول الآمن</span>
+                      <span className="text-sm text-gray-700 dark:text-gray-300">تسجيل الدخول الآمن</span>
                     </div>
                     <Badge className="bg-green-100 text-green-800 px-3 py-1 rounded-full">مفعل</Badge>
                   </div>
                   <div className="flex items-center justify-between p-3 bg-gray-50 rounded-xl">
                     <div className="flex items-center space-x-2 space-x-reverse">
                       <AlertCircle className="w-4 h-4 text-gray-600" />
-                      <span className="text-sm text-gray-700">المصادقة الثنائية</span>
+                      <span className="text-sm text-gray-700 dark:text-gray-300">المصادقة الثنائية</span>
                     </div>
                     <Badge variant="outline" className="px-3 py-1 rounded-full">غير مفعل</Badge>
                   </div>
@@ -613,7 +613,7 @@ export default function Profile() {
                         </div>
                         <div className="flex-1">
                           <p className="text-sm font-semibold text-gray-900 mb-1">{activity.action}</p>
-                          <p className="text-xs text-gray-600">{activity.details}</p>
+                          <p className="text-xs text-gray-600 dark:text-gray-400">{activity.details}</p>
                         </div>
                         <div className="text-xs text-gray-500 bg-white/50 px-3 py-1 rounded-full">
                           {formatDateArabic(activity.created_at)}

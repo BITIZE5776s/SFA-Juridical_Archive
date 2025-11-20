@@ -175,13 +175,13 @@ export default function Dashboard() {
 
   return (
     <MainLayout>
-      <div className="p-6 min-h-full bg-gradient-to-br from-gray-50 via-white to-blue-50">
+      <div className="p-6 min-h-full bg-gradient-to-br from-gray-50 via-white to-blue-50 dark:bg-gradient-dark">
         {/* Breadcrumb */}
         <nav className="mb-6">
-          <ol className="flex items-center space-x-2 space-x-reverse text-sm text-gray-600">
-            <li><Link href="/dashboard" className="hover:text-blue-600 transition-colors">الرئيسية</Link></li>
+          <ol className="flex items-center space-x-2 space-x-reverse text-sm text-gray-600 dark:text-gray-400">
+            <li><Link href="/dashboard" className="hover:text-blue-600 dark:hover:text-blue-400 transition-colors">الرئيسية</Link></li>
             <li><ChevronLeft className="w-3 h-3" /></li>
-            <li className="text-gray-900 font-medium">لوحة التحكم</li>
+            <li className="text-gray-900 dark:text-white font-medium">لوحة التحكم</li>
           </ol>
         </nav>
 
@@ -192,10 +192,10 @@ export default function Dashboard() {
               <Users className="w-6 h-6 text-white" />
             </div>
             <div>
-              <h1 className="text-3xl font-bold text-gray-900 mb-1">
+              <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-1">
                 مرحباً، {user?.fullName}
               </h1>
-              <p className="text-gray-600 flex items-center space-x-2 space-x-reverse">
+              <p className="text-gray-600 dark:text-gray-400 flex items-center space-x-2 space-x-reverse">
                 <Calendar className="w-4 h-4" />
                 <span>إليك نظرة عامة على قضاياك ووثائقك الحديثة.</span>
               </p>
@@ -260,14 +260,14 @@ export default function Dashboard() {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mt-6">
           {/* System Overview */}
           <div className="lg:col-span-2">
-            <Card className="shadow-lg border-0 bg-white/80 backdrop-blur-sm">
-              <CardHeader className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-t-lg">
+            <Card className="shadow-lg border-0 bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm">
+              <CardHeader className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-gray-700 dark:to-gray-600 rounded-t-lg">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center space-x-3 space-x-reverse">
                     <div className="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center">
                       <BarChart3 className="w-4 h-4 text-blue-600" />
                     </div>
-                    <CardTitle className="text-lg font-semibold text-gray-900">نظرة عامة على النظام</CardTitle>
+                    <CardTitle className="text-lg font-semibold text-gray-900 dark:text-white">نظرة عامة على النظام</CardTitle>
                   </div>
                 </div>
               </CardHeader>
@@ -279,25 +279,25 @@ export default function Dashboard() {
                 ) : (
                   <div className="space-y-4">
                     <div className="grid grid-cols-2 gap-4">
-                      <div className="bg-gradient-to-r from-green-50 to-emerald-50 p-4 rounded-lg">
+                      <div className="bg-gradient-to-r from-green-50 to-emerald-50 dark:from-gray-700 dark:to-gray-600 p-4 rounded-lg">
                         <div className="flex items-center space-x-2 space-x-reverse">
-                          <div className="w-8 h-8 bg-green-100 rounded-lg flex items-center justify-center">
-                            <FileCheck className="w-4 h-4 text-green-600" />
+                          <div className="w-8 h-8 bg-green-100 dark:bg-green-900/30 rounded-lg flex items-center justify-center">
+                            <FileCheck className="w-4 h-4 text-green-600 dark:text-green-400" />
                           </div>
                           <div>
-                            <p className="text-sm text-gray-600">إجمالي الوثائق</p>
-                            <p className="text-2xl font-bold text-green-600">{stats?.total_documents || 0}</p>
+                            <p className="text-sm text-gray-600 dark:text-gray-400">إجمالي الوثائق</p>
+                            <p className="text-2xl font-bold text-green-600 dark:text-green-400">{stats?.total_documents || 0}</p>
                           </div>
                         </div>
                       </div>
-                      <div className="bg-gradient-to-r from-orange-50 to-amber-50 p-4 rounded-lg">
+                      <div className="bg-gradient-to-r from-orange-50 to-amber-50 dark:from-gray-700 dark:to-gray-600 p-4 rounded-lg">
                         <div className="flex items-center space-x-2 space-x-reverse">
-                          <div className="w-8 h-8 bg-orange-100 rounded-lg flex items-center justify-center">
-                            <Clock className="w-4 h-4 text-orange-600" />
+                          <div className="w-8 h-8 bg-orange-100 dark:bg-orange-900/30 rounded-lg flex items-center justify-center">
+                            <Clock className="w-4 h-4 text-orange-600 dark:text-orange-400" />
                           </div>
                           <div>
-                            <p className="text-sm text-gray-600">في الانتظار</p>
-                            <p className="text-2xl font-bold text-orange-600">{stats?.pending_documents || 0}</p>
+                            <p className="text-sm text-gray-600 dark:text-gray-400">في الانتظار</p>
+                            <p className="text-2xl font-bold text-orange-600 dark:text-orange-400">{stats?.pending_documents || 0}</p>
                           </div>
                         </div>
                       </div>
@@ -305,49 +305,49 @@ export default function Dashboard() {
                     
                     {/* System Health Overview */}
                     <div className="mt-6">
-                      <h4 className="text-sm font-semibold text-gray-700 mb-3">صحة النظام</h4>
+                      <h4 className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3">صحة النظام</h4>
                       <div className="grid grid-cols-2 gap-3">
-                        <div className="bg-gradient-to-r from-green-50 to-emerald-50 p-3 rounded-lg">
+                        <div className="bg-gradient-to-r from-green-50 to-emerald-50 dark:from-gray-700 dark:to-gray-600 p-3 rounded-lg">
                           <div className="flex items-center space-x-2 space-x-reverse">
-                            <div className="w-6 h-6 bg-green-100 rounded-lg flex items-center justify-center">
-                              <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                            <div className="w-6 h-6 bg-green-100 dark:bg-green-900/30 rounded-lg flex items-center justify-center">
+                              <div className="w-2 h-2 bg-green-500 dark:bg-green-400 rounded-full"></div>
                             </div>
                             <div>
-                              <p className="text-xs text-gray-600">حالة الخادم</p>
-                              <p className="text-sm font-semibold text-green-600">ممتاز</p>
+                              <p className="text-xs text-gray-600 dark:text-gray-400">حالة الخادم</p>
+                              <p className="text-sm font-semibold text-green-600 dark:text-green-400">ممتاز</p>
                             </div>
                           </div>
                         </div>
-                        <div className="bg-gradient-to-r from-blue-50 to-cyan-50 p-3 rounded-lg">
+                        <div className="bg-gradient-to-r from-blue-50 to-cyan-50 dark:from-gray-700 dark:to-gray-600 p-3 rounded-lg">
                           <div className="flex items-center space-x-2 space-x-reverse">
-                            <div className="w-6 h-6 bg-blue-100 rounded-lg flex items-center justify-center">
-                              <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
+                            <div className="w-6 h-6 bg-blue-100 dark:bg-blue-900/30 rounded-lg flex items-center justify-center">
+                              <div className="w-2 h-2 bg-blue-500 dark:bg-blue-400 rounded-full"></div>
                             </div>
                             <div>
-                              <p className="text-xs text-gray-600">الأداء</p>
-                              <p className="text-sm font-semibold text-blue-600">98%</p>
+                              <p className="text-xs text-gray-600 dark:text-gray-400">الأداء</p>
+                              <p className="text-sm font-semibold text-blue-600 dark:text-blue-400">98%</p>
                             </div>
                           </div>
                         </div>
-                        <div className="bg-gradient-to-r from-purple-50 to-violet-50 p-3 rounded-lg">
+                        <div className="bg-gradient-to-r from-purple-50 to-violet-50 dark:from-gray-700 dark:to-gray-600 p-3 rounded-lg">
                           <div className="flex items-center space-x-2 space-x-reverse">
-                            <div className="w-6 h-6 bg-purple-100 rounded-lg flex items-center justify-center">
-                              <div className="w-2 h-2 bg-purple-500 rounded-full"></div>
+                            <div className="w-6 h-6 bg-purple-100 dark:bg-purple-900/30 rounded-lg flex items-center justify-center">
+                              <div className="w-2 h-2 bg-purple-500 dark:bg-purple-400 rounded-full"></div>
                             </div>
                             <div>
-                              <p className="text-xs text-gray-600">الأمان</p>
-                              <p className="text-sm font-semibold text-purple-600">محمي</p>
+                              <p className="text-xs text-gray-600 dark:text-gray-400">الأمان</p>
+                              <p className="text-sm font-semibold text-purple-600 dark:text-purple-400">محمي</p>
                             </div>
                           </div>
                         </div>
-                        <div className="bg-gradient-to-r from-orange-50 to-amber-50 p-3 rounded-lg">
+                        <div className="bg-gradient-to-r from-orange-50 to-amber-50 dark:from-gray-700 dark:to-gray-600 p-3 rounded-lg">
                           <div className="flex items-center space-x-2 space-x-reverse">
-                            <div className="w-6 h-6 bg-orange-100 rounded-lg flex items-center justify-center">
-                              <div className="w-2 h-2 bg-orange-500 rounded-full"></div>
+                            <div className="w-6 h-6 bg-orange-100 dark:bg-orange-900/30 rounded-lg flex items-center justify-center">
+                              <div className="w-2 h-2 bg-orange-500 dark:bg-orange-400 rounded-full"></div>
                             </div>
                             <div>
-                              <p className="text-xs text-gray-600">التخزين</p>
-                              <p className="text-sm font-semibold text-orange-600">جيد</p>
+                              <p className="text-xs text-gray-600 dark:text-gray-400">التخزين</p>
+                              <p className="text-sm font-semibold text-orange-600 dark:text-orange-400">جيد</p>
                             </div>
                           </div>
                         </div>
@@ -361,14 +361,14 @@ export default function Dashboard() {
             {/* Three detailed sections for recommendations, reports, and comments - Vertically aligned */}
             <div className="space-y-4 mt-6">
             {/* Recommendations Section */}
-            <Card className="shadow-lg border-0 bg-white/80 backdrop-blur-sm">
-              <CardHeader className="bg-gradient-to-r from-yellow-50 to-amber-50 rounded-t-lg">
+            <Card className="shadow-lg border-0 bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm">
+              <CardHeader className="bg-gradient-to-r from-yellow-50 to-amber-50 dark:from-gray-700 dark:to-gray-600 rounded-t-lg">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center space-x-3 space-x-reverse">
                     <div className="w-8 h-8 bg-yellow-100 rounded-lg flex items-center justify-center">
                       <Lightbulb className="w-4 h-4 text-yellow-600" />
                     </div>
-                    <CardTitle className="text-lg font-semibold text-gray-900">التوصيات</CardTitle>
+                    <CardTitle className="text-lg font-semibold text-gray-900 dark:text-white">التوصيات</CardTitle>
                   </div>
                   <Link href="/recommendations">
                     <Button variant="ghost" size="sm" className="text-yellow-600 hover:text-yellow-700 hover:bg-yellow-50 transition-colors">
@@ -386,12 +386,12 @@ export default function Dashboard() {
                   <div className="space-y-3">
                     {recommendations.length > 0 ? (
                       recommendations.slice(0, 4).map((rec: any) => (
-                        <div key={rec.id} className="p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
+                        <div key={rec.id} className="p-3 bg-gray-50 dark:bg-gray-700 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors">
                           <div className="flex items-start space-x-2 space-x-reverse">
                             <div className="w-2 h-2 bg-yellow-500 rounded-full mt-2 flex-shrink-0"></div>
                             <div className="flex-1 min-w-0">
-                              <p className="text-sm font-medium text-gray-900 truncate">{rec.title}</p>
-                              <p className="text-xs text-gray-500 mt-1 line-clamp-2">{rec.description}</p>
+                              <p className="text-sm font-medium text-gray-900 dark:text-white truncate">{rec.title}</p>
+                              <p className="text-xs text-gray-500 dark:text-gray-400 mt-1 line-clamp-2">{rec.description}</p>
                               <div className="flex items-center justify-between mt-2">
                                 <span className={`text-xs px-2 py-1 rounded-full ${
                                   rec.priority === 'high' ? 'bg-red-100 text-red-700' :
@@ -419,14 +419,14 @@ export default function Dashboard() {
             </Card>
 
             {/* Reports Section */}
-            <Card className="shadow-lg border-0 bg-white/80 backdrop-blur-sm">
-              <CardHeader className="bg-gradient-to-r from-red-50 to-pink-50 rounded-t-lg">
+            <Card className="shadow-lg border-0 bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm">
+              <CardHeader className="bg-gradient-to-r from-red-50 to-pink-50 dark:from-gray-700 dark:to-gray-600 rounded-t-lg">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center space-x-3 space-x-reverse">
                     <div className="w-8 h-8 bg-red-100 rounded-lg flex items-center justify-center">
                       <Flag className="w-4 h-4 text-red-600" />
                     </div>
-                    <CardTitle className="text-lg font-semibold text-gray-900">التقارير</CardTitle>
+                    <CardTitle className="text-lg font-semibold text-gray-900 dark:text-white">التقارير</CardTitle>
                   </div>
                   <Link href="/reports">
                     <Button variant="ghost" size="sm" className="text-red-600 hover:text-red-700 hover:bg-red-50 transition-colors">
@@ -444,7 +444,7 @@ export default function Dashboard() {
                   <div className="space-y-3">
                     {reports.length > 0 ? (
                       reports.slice(0, 4).map((report: any) => (
-                        <div key={report.id} className="p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
+                        <div key={report.id} className="p-3 bg-gray-50 dark:bg-gray-700 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors">
                           <div className="flex items-start space-x-2 space-x-reverse">
                             <div className={`w-2 h-2 rounded-full mt-2 flex-shrink-0 ${
                               report.severity === 'critical' ? 'bg-red-500' :
@@ -453,8 +453,8 @@ export default function Dashboard() {
                               'bg-green-500'
                             }`}></div>
                             <div className="flex-1 min-w-0">
-                              <p className="text-sm font-medium text-gray-900 truncate">{report.title}</p>
-                              <p className="text-xs text-gray-500 mt-1 line-clamp-2">{report.description}</p>
+                              <p className="text-sm font-medium text-gray-900 dark:text-white truncate">{report.title}</p>
+                              <p className="text-xs text-gray-500 dark:text-gray-400 mt-1 line-clamp-2">{report.description}</p>
                               <div className="flex items-center justify-between mt-2">
                                 <span className={`text-xs px-2 py-1 rounded-full ${
                                   report.severity === 'critical' ? 'bg-red-100 text-red-700' :
@@ -485,14 +485,14 @@ export default function Dashboard() {
             </Card>
 
             {/* Comments Section */}
-            <Card className="shadow-lg border-0 bg-white/80 backdrop-blur-sm">
-              <CardHeader className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-t-lg">
+            <Card className="shadow-lg border-0 bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm">
+              <CardHeader className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-gray-700 dark:to-gray-600 rounded-t-lg">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center space-x-3 space-x-reverse">
                     <div className="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center">
                       <MessageSquare className="w-4 h-4 text-blue-600" />
                     </div>
-                    <CardTitle className="text-lg font-semibold text-gray-900">التعليقات</CardTitle>
+                    <CardTitle className="text-lg font-semibold text-gray-900 dark:text-white">التعليقات</CardTitle>
                   </div>
                   <Link href="/comments">
                     <Button variant="ghost" size="sm" className="text-blue-600 hover:text-blue-700 hover:bg-blue-50 transition-colors">
@@ -510,19 +510,19 @@ export default function Dashboard() {
                   <div className="space-y-3">
                     {comments.length > 0 ? (
                       comments.slice(0, 4).map((comment: any) => (
-                        <div key={comment.id} className="p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
+                        <div key={comment.id} className="p-3 bg-gray-50 dark:bg-gray-700 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors">
                           <div className="flex items-start space-x-2 space-x-reverse">
                             <div className={`w-2 h-2 rounded-full mt-2 flex-shrink-0 ${
                               comment.is_resolved ? 'bg-green-500' : 'bg-blue-500'
                             }`}></div>
                             <div className="flex-1 min-w-0">
-                              <p className="text-sm text-gray-700 line-clamp-2">{comment.content}</p>
+                              <p className="text-sm text-gray-700 dark:text-gray-300 line-clamp-2">{comment.content}</p>
                               <div className="flex items-center justify-between mt-2">
                                 <span className={`text-xs px-2 py-1 rounded-full ${
                                   comment.type === 'question' ? 'bg-purple-100 text-purple-700' :
                                   comment.type === 'suggestion' ? 'bg-green-100 text-green-700' :
                                   comment.type === 'review' ? 'bg-blue-100 text-blue-700' :
-                                  'bg-gray-100 text-gray-700'
+                                  'bg-gray-100 text-gray-700 dark:bg-gray-700 dark:text-gray-300'
                                 }`}>
                                   {comment.type === 'question' ? 'سؤال' :
                                    comment.type === 'suggestion' ? 'اقتراح' :
@@ -551,13 +551,13 @@ export default function Dashboard() {
           {/* Quick Actions & Favorites */}
           <div className="space-y-4">
             {/* Quick Actions */}
-            <Card className="shadow-lg border-0 bg-white/80 backdrop-blur-sm">
-              <CardHeader className="bg-gradient-to-r from-green-50 to-emerald-50 rounded-t-lg">
+            <Card className="shadow-lg border-0 bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm">
+              <CardHeader className="bg-gradient-to-r from-green-50 to-emerald-50 dark:from-gray-700 dark:to-gray-600 rounded-t-lg">
                 <div className="flex items-center space-x-3 space-x-reverse">
                   <div className="w-8 h-8 bg-green-100 rounded-lg flex items-center justify-center">
                     <Plus className="w-4 h-4 text-green-600" />
                   </div>
-                  <CardTitle className="text-lg font-semibold text-gray-900">إجراءات سريعة</CardTitle>
+                  <CardTitle className="text-lg font-semibold text-gray-900 dark:text-white">إجراءات سريعة</CardTitle>
                 </div>
               </CardHeader>
               <CardContent className="space-y-3 p-6">
@@ -604,14 +604,14 @@ export default function Dashboard() {
             </Card>
 
             {/* Favorites */}
-            <Card className="shadow-lg border-0 bg-white/80 backdrop-blur-sm">
-              <CardHeader className="bg-gradient-to-r from-yellow-50 to-amber-50 rounded-t-lg">
+            <Card className="shadow-lg border-0 bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm">
+              <CardHeader className="bg-gradient-to-r from-yellow-50 to-amber-50 dark:from-gray-700 dark:to-gray-600 rounded-t-lg">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center space-x-3 space-x-reverse">
                     <div className="w-8 h-8 bg-yellow-100 rounded-lg flex items-center justify-center">
                       <Star className="w-4 h-4 text-yellow-600" />
                     </div>
-                    <CardTitle className="text-lg font-semibold text-gray-900">
+                    <CardTitle className="text-lg font-semibold text-gray-900 dark:text-white">
                       الوثائق المفضلة {userFavorites && userFavorites.length > 0 && `(${userFavorites.length})`}
                     </CardTitle>
                   </div>
@@ -638,15 +638,15 @@ export default function Dashboard() {
                         userFavorites.slice(0, 3).map((doc: any) => (
                           <div 
                             key={doc.id} 
-                            className="flex items-center space-x-3 space-x-reverse p-2 hover:bg-gray-50 rounded-lg transition-colors cursor-pointer"
+                            className="flex items-center space-x-3 space-x-reverse p-2 hover:bg-gray-50 dark:hover:bg-gray-700 rounded-lg transition-colors cursor-pointer"
                             onClick={() => setLocation(`/documents/${doc.id}`)}
                           >
                             <div className="w-8 h-8 bg-yellow-100 rounded-lg flex items-center justify-center">
                               <FileText className="w-4 h-4 text-yellow-600" />
                             </div>
                             <div className="flex-1 min-w-0">
-                              <p className="text-sm font-medium text-gray-900 truncate">{doc.title}</p>
-                              <p className="text-xs text-gray-500">
+                              <p className="text-sm font-medium text-gray-900 dark:text-white truncate">{doc.title}</p>
+                              <p className="text-xs text-gray-500 dark:text-gray-400">
                                 {formatDateArabic(doc.created_at)}
                               </p>
                             </div>

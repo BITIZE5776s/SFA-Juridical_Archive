@@ -22,11 +22,11 @@ export function StatsCard({
   trend 
 }: StatsCardProps) {
   return (
-    <div className="bg-white/80 backdrop-blur-sm p-6 rounded-2xl shadow-lg border-0 hover:shadow-xl transition-all duration-300 transform hover:scale-[1.02] group">
+    <div className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm p-6 rounded-2xl shadow-lg border-0 hover:shadow-xl transition-all duration-300 transform hover:scale-[1.02] group">
       <div className="flex items-center justify-between">
         <div>
-          <p className="text-sm font-medium text-gray-600 mb-1">{title}</p>
-          <p className="text-3xl font-bold text-gray-900 group-hover:text-blue-600 transition-colors">{value}</p>
+          <p className="text-sm font-medium text-gray-600 dark:text-gray-400 mb-1">{title}</p>
+          <p className="text-3xl font-bold text-gray-900 dark:text-white group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">{value}</p>
         </div>
         <div className={`w-14 h-14 ${iconBgColor} rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform duration-300 shadow-lg`}>
           <IconComponent className={`w-7 h-7 ${iconColor}`} />
@@ -50,7 +50,7 @@ export function StatsCard({
               </svg>
             )}
           </span>
-          <span className="text-sm text-gray-500 mr-2">{trend.label}</span>
+          <span className="text-sm text-gray-500 dark:text-gray-400 mr-2">{trend.label}</span>
         </div>
       )}
     </div>

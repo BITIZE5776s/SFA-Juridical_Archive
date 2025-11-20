@@ -450,7 +450,7 @@ export function PaperManagement({ documentId, blockLabel, documentTitle }: Paper
         {/* Add/Edit Paper Form */}
         {isAddingPaper && (
           <div className="mb-6 p-4 border border-gray-200 rounded-lg bg-gray-50">
-            <h4 className="font-medium text-gray-900 mb-4">
+            <h4 className="font-medium text-gray-900 dark:text-white mb-4">
               {editingPaper ? "تعديل الورقة" : "إضافة ورقة جديدة"}
             </h4>
             <Form {...form}>
@@ -515,12 +515,12 @@ export function PaperManagement({ documentId, blockLabel, documentTitle }: Paper
         {/* Papers List */}
         <div className="space-y-4">
           {(papers as Paper[]).map((paper) => (
-            <div key={paper.id} className="flex items-center space-x-4 space-x-reverse p-4 border border-gray-200 rounded-lg hover:bg-gray-50">
+            <div key={paper.id} className="flex items-center space-x-4 space-x-reverse p-4 border border-gray-200 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700">
               <div className="w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center flex-shrink-0">
                 <i className={getFileIcon(paper.file_type)}></i>
               </div>
               <div className="flex-1 min-w-0">
-                <h4 className="text-sm font-medium text-gray-900 truncate">{paper.title}</h4>
+                <h4 className="text-sm font-medium text-gray-900 dark:text-white truncate">{paper.title}</h4>
                 <div className="flex items-center space-x-4 space-x-reverse mt-1">
                   {paper.file_type && (
                     <Badge variant="outline" className="text-xs">

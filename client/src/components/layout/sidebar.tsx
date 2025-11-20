@@ -29,9 +29,11 @@ import {
 interface SidebarProps {
   onNewDocument?: () => void;
   onCategorySelect?: (category: string) => void;
+  isOpen?: boolean;
+  onToggle?: () => void;
 }
 
-export function Sidebar({ onNewDocument, onCategorySelect }: SidebarProps) {
+export function Sidebar({ onNewDocument, onCategorySelect, isOpen = true, onToggle }: SidebarProps) {
   const [location] = useLocation();
   const { canManageDocuments, canManageUsers, canPerformActions, user } = useAuth();
 
@@ -190,8 +192,11 @@ export function Sidebar({ onNewDocument, onCategorySelect }: SidebarProps) {
   ];
 
   return (
-    <aside className="w-80 bg-gradient-to-b from-white to-gray-50 shadow-lg border-r border-gray-200 flex-shrink-0 h-full overflow-y-auto">
-      <nav className="p-6 space-y-2">
+    <aside className={cn(
+      "bg-gradient-to-b from-white to-gray-50 dark:from-gray-900 dark:to-gray-800 shadow-lg border-r border-gray-200 dark:border-gray-700 flex-shrink-0 h-full overflow-y-auto transition-all duration-300 ease-in-out",
+      isOpen ? "w-80" : "w-0 opacity-0"
+    )}>
+      <nav className={cn("p-6 space-y-2 transition-opacity duration-300", isOpen ? "opacity-100" : "opacity-0 pointer-events-none")}>
         <div className="mb-6">
           {canManageDocuments() && canPerformActions() && (
             <Button
@@ -214,13 +219,10 @@ export function Sidebar({ onNewDocument, onCategorySelect }: SidebarProps) {
                     "flex items-center space-x-3 space-x-reverse px-4 py-3 rounded-xl transition-all duration-200 group",
                     item.current
                       ? `${item.color} ${item.bgColor} font-medium shadow-sm`
-                      : "text-gray-700 hover:bg-gray-50 hover:text-gray-900"
+                      : "text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 hover:text-gray-900 dark:hover:text-white"
                   )}
                 >
-                  <div className={cn(
-                    "p-2 rounded-lg transition-colors",
-                    item.current ? "bg-white/50" : "group-hover:bg-white/50"
-                  )}>
+                  <div className="p-2 rounded-lg transition-colors">
                     <IconComponent className="w-5 h-5" />
                   </div>
                   <span className="flex-1">{item.name}</span>
@@ -228,7 +230,7 @@ export function Sidebar({ onNewDocument, onCategorySelect }: SidebarProps) {
                     <span
                       className={cn(
                         "text-xs px-2 py-1 rounded-full font-medium",
-                        item.badgeColor || "bg-gray-200 text-gray-700"
+                        item.badgeColor || "bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300"
                       )}
                     >
                       {item.badge}
@@ -241,7 +243,7 @@ export function Sidebar({ onNewDocument, onCategorySelect }: SidebarProps) {
         </div>
 
         <div className="pt-6">
-          <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-3 flex items-center space-x-2 space-x-reverse">
+          <h3 className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-3 flex items-center space-x-2 space-x-reverse">
             <Shield className="w-3 h-3" />
             <span>الفئات</span>
           </h3>
@@ -253,7 +255,7 @@ export function Sidebar({ onNewDocument, onCategorySelect }: SidebarProps) {
                   key={category.name}
                   onClick={() => onCategorySelect?.(category.categoryKey)}
                   className={cn(
-                    "flex items-center space-x-3 space-x-reverse px-4 py-2 text-gray-600 hover:bg-gray-50 rounded-lg transition-all duration-200 group cursor-pointer",
+                    "flex items-center space-x-3 space-x-reverse px-4 py-2 text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800 rounded-lg transition-all duration-200 group cursor-pointer",
                     "hover:shadow-sm"
                   )}
                 >
@@ -272,7 +274,7 @@ export function Sidebar({ onNewDocument, onCategorySelect }: SidebarProps) {
         </div>
 
         <div className="pt-6">
-          <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-3 flex items-center space-x-2 space-x-reverse">
+          <h3 className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-3 flex items-center space-x-2 space-x-reverse">
             <MessageSquare className="w-3 h-3" />
             <span>التوصيات والملاحظات</span>
           </h3>
@@ -286,14 +288,11 @@ export function Sidebar({ onNewDocument, onCategorySelect }: SidebarProps) {
                       "flex items-center space-x-3 space-x-reverse px-4 py-2 rounded-lg transition-all duration-200 text-sm group",
                       item.current
                         ? `${item.color} ${item.bgColor} font-medium shadow-sm`
-                        : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
+                        : "text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800 hover:text-gray-900 dark:hover:text-white"
                     )}
                   >
-                    <div className={cn(
-                      "p-1.5 rounded-md transition-colors",
-                      item.current ? "bg-white/50" : "group-hover:bg-white/50"
-                    )}>
-                      <IconComponent className={cn("w-4 h-4", item.current ? item.color : "text-gray-500")} />
+                    <div className="p-1.5 rounded-md transition-colors">
+                      <IconComponent className={cn("w-4 h-4", item.current ? item.color : "text-gray-500 dark:text-gray-400")} />
                     </div>
                     <span className="text-sm truncate">{item.name}</span>
                   </div>
@@ -305,7 +304,7 @@ export function Sidebar({ onNewDocument, onCategorySelect }: SidebarProps) {
 
         {canManageUsers() && (
           <div className="pt-6">
-            <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-3 flex items-center space-x-2 space-x-reverse">
+            <h3 className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-3 flex items-center space-x-2 space-x-reverse">
               <UserCog className="w-3 h-3" />
               <span>الإدارة</span>
             </h3>
@@ -319,14 +318,11 @@ export function Sidebar({ onNewDocument, onCategorySelect }: SidebarProps) {
                         "flex items-center space-x-3 space-x-reverse px-4 py-2 rounded-lg transition-all duration-200 text-sm group",
                         item.current
                           ? `${item.color} ${item.bgColor} font-medium shadow-sm`
-                          : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
+                          : "text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800 hover:text-gray-900 dark:hover:text-white"
                       )}
                     >
-                      <div className={cn(
-                        "p-1.5 rounded-md transition-colors",
-                        item.current ? "bg-white/50" : "group-hover:bg-white/50"
-                      )}>
-                        <IconComponent className={cn("w-4 h-4", item.current ? item.color : "text-gray-500")} />
+                      <div className="p-1.5 rounded-md transition-colors">
+                        <IconComponent className={cn("w-4 h-4", item.current ? item.color : "text-gray-500 dark:text-gray-400")} />
                       </div>
                       <span className="text-sm truncate">{item.name}</span>
                     </div>

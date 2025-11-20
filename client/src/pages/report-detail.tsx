@@ -265,7 +265,7 @@ export default function ReportDetailPage() {
                       </p>
                     </div>
                     <div>
-                      <span className="text-gray-600">آخر تحديث:</span>
+                      <span className="text-gray-600 dark:text-gray-300">آخر تحديث:</span>
                       <p className="font-medium">
                         {formatDateArabic(report.updated_at, {
                           year: "numeric",
