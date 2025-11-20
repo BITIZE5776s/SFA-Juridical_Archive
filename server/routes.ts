@@ -1,5 +1,6 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
+import * as crypto from "crypto";
 import { supabase } from "./supabase";
 import { loginSchema, type InsertUser, type InsertDocument, type InsertPaper, type InsertRecommendation, type InsertComment, type InsertReport } from "@shared/schema";
 import { storage } from "./storage";
@@ -1848,27 +1849,27 @@ export async function registerRoutes(app: Express): Promise<Server> {
         date.setDate(date.getDate() - i);
         
         // Generate 5-15 activities per day
-        const activitiesPerDay = Math.floor(Math.random() * 11) + 5;
+        const activitiesPerDay = crypto.randomInt(5, 16); // 5-15 inclusive
         
         for (let j = 0; j < activitiesPerDay; j++) {
-          const user = users[Math.floor(Math.random() * users.length)];
-          const action = actions[Math.floor(Math.random() * actions.length)];
-          const resourceType = resourceTypes[Math.floor(Math.random() * resourceTypes.length)];
+          const user = users[crypto.randomInt(users.length)];
+          const action = actions[crypto.randomInt(actions.length)];
+          const resourceType = resourceTypes[crypto.randomInt(resourceTypes.length)];
           
           const activityTime = new Date(date);
-          activityTime.setHours(Math.floor(Math.random() * 24));
-          activityTime.setMinutes(Math.floor(Math.random() * 60));
+          activityTime.setHours(crypto.randomInt(24));
+          activityTime.setMinutes(crypto.randomInt(60));
           
           sampleActivities.push({
             user_id: user.id,
             action: action,
             resource_type: resourceType,
-            resource_id: Math.random().toString(36).substr(2, 9),
+            resource_id: crypto.randomBytes(9).toString("base64url").slice(0, 9),
             details: {
               user_name: user.full_name || user.username,
               user_role: user.role,
               action_description: `User ${user.full_name || user.username} performed ${action} on ${resourceType}`,
-              ip_address: `192.168.1.${Math.floor(Math.random() * 255)}`,
+              ip_address: `192.168.1.${crypto.randomInt(255)}`,
               user_agent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
             },
             created_at: activityTime.toISOString()
