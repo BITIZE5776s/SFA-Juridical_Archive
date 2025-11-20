@@ -101,7 +101,7 @@ export async function createCustomBlockFolder(blockLabel: string) {
       return true;
     }
   } catch (error) {
-    console.error(`Error creating custom block folder ${blockLabel}:`, error);
+    console.error("Error creating custom block folder %s:", blockLabel, error);
     return false;
   }
 }
