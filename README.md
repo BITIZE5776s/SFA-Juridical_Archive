@@ -272,5 +272,5 @@ For questions, support, or inquiries about this project, please contact us at:
 
 ---
 
-**Version:** 1.3.1 
-**Last Updated:** 2025
+- **Version:** 1.3.1 
+- **Last Updated:** 2025
