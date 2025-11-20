@@ -270,21 +270,6 @@ JudicialArchive/
 
 ---
 
-## 🔒 Security
-
-This project uses environment variables for all sensitive credentials. All API keys, database URLs, and secrets are stored in the `.env` file (which is excluded from version control).
-
-**Important Security Notes:**
-
-- ✅ All secrets are now loaded from environment variables
-- ✅ The `.env` file is in `.gitignore` and will never be committed
-- ✅ Client-side code uses `VITE_` prefixed variables (only public keys)
-- ✅ Server-side code uses secure environment variables
-- ⚠️ **Never commit your `.env` file to version control**
-- ⚠️ **Rotate your API keys if they were previously exposed in Git history**
-
----
-
 ## 📝 License
 
 This project is proprietary software developed by MIRINIOUI ZAKARIA. All rights reserved.
