@@ -169,7 +169,14 @@ This project was conceived, designed, and developed entirely from scratch by MIR
    ```
 
 3. **Set up environment variables**
-   Create a `.env` file in the root directory with the following variables:
+
+   Copy the example environment file and fill in your credentials:
+
+   ```bash
+   cp .env.example .env
+   ```
+
+   Then edit `.env` and add your actual credentials:
 
    ```env
    PORT=5000
@@ -178,7 +185,11 @@ This project was conceived, designed, and developed entirely from scratch by MIR
    SUPABASE_ANON_KEY=your_supabase_anon_key
    SUPABASE_SERVICE_ROLE_KEY=your_supabase_service_role_key
    DATABASE_URL=your_postgresql_connection_string
+   VITE_SUPABASE_URL=your_supabase_url
+   VITE_SUPABASE_ANON_KEY=your_supabase_anon_key
    ```
+
+   **Note:** The `VITE_` prefixed variables are for client-side code. Only use public keys (anon key) for these, never the service role key.
 
 4. **Set up the database**
 
@@ -259,6 +270,21 @@ JudicialArchive/
 
 ---
 
+## 🔒 Security
+
+This project uses environment variables for all sensitive credentials. All API keys, database URLs, and secrets are stored in the `.env` file (which is excluded from version control).
+
+**Important Security Notes:**
+
+- ✅ All secrets are now loaded from environment variables
+- ✅ The `.env` file is in `.gitignore` and will never be committed
+- ✅ Client-side code uses `VITE_` prefixed variables (only public keys)
+- ✅ Server-side code uses secure environment variables
+- ⚠️ **Never commit your `.env` file to version control**
+- ⚠️ **Rotate your API keys if they were previously exposed in Git history**
+
+---
+
 ## 📝 License
 
 This project is proprietary software developed by MIRINIOUI ZAKARIA. All rights reserved.
@@ -268,9 +294,9 @@ This project is proprietary software developed by MIRINIOUI ZAKARIA. All rights 
 ## 📧 Contact
 
 For questions, support, or inquiries about this project, please contact us at:
-**zakmirinoui@gmail.com** 
+**zakmirinoui@gmail.com**
 
 ---
 
-- **Version:** 1.3.1 
+- **Version:** 1.3.1
 - **Last Updated:** 2025

@@ -1,8 +1,10 @@
 import { createClient } from '@supabase/supabase-js'
 import { type User } from "@shared/schema";
 
-const supabaseUrl = 'https://lgmhziyouvylsiqvgjtd.supabase.co'
-const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxnbWh6aXlvdXZ5bHNpcXZnanRkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTMyNzE4MDUsImV4cCI6MjA2ODg0NzgwNX0.u-Mm6-ZAmmuoNAzAjjREHFgGjBAzqq7uwiD5wkiCjBo'
+// Use Vite environment variables (prefixed with VITE_)
+// Fallback to current values for backward compatibility during migration
+const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || 'https://lgmhziyouvylsiqvgjtd.supabase.co'
+const supabaseKey = import.meta.env.VITE_SUPABASE_ANON_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxnbWh6aXlvdXZ5bHNpcXZnanRkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTMyNzE4MDUsImV4cCI6MjA2ODg0NzgwNX0.u-Mm6-ZAmmuoNAzAjjREHFgGjBAzqq7uwiD5wkiCjBo'
 
 export const supabase = createClient(supabaseUrl, supabaseKey)
 
