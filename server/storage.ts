@@ -41,7 +41,7 @@ export interface IStorage {
   getDocument(id: string): Promise<DocumentWithDetails | null>;
   createDocument(document: InsertDocument): Promise<Document | null>;
   updateDocument(id: string, document: Partial<InsertDocument>): Promise<Document | null>;
-  deleteDocument(id: string): Promise<boolean>;
+  deleteDocument(id: string, userId?: string): Promise<boolean>;
   searchDocuments(query: string): Promise<DocumentWithDetails[] | null>;
   filterDocuments(filters: {
     category?: string;
@@ -133,9 +133,9 @@ export class SupabaseStorage implements IStorage {
   async createUser(user: InsertUser): Promise<User | null> {
     try {
       console.log("Starting user creation process for:", user.email);
-      
+
       let userId: string;
-      
+
       // Step 1: Try to create user in Supabase Auth
       console.log("Attempting to create user in Supabase Auth...");
       try {
@@ -149,7 +149,7 @@ export class SupabaseStorage implements IStorage {
             role: user.role
           }
         });
-        
+
         if (authError) {
           console.warn('Auth creation failed, falling back to database-only creation:', authError.message);
           // Generate a UUID for the user
@@ -168,7 +168,7 @@ export class SupabaseStorage implements IStorage {
         userId = crypto.randomUUID();
         console.log('Using generated UUID for user:', userId);
       }
-      
+
       // Step 2: Create user in database
       console.log("Creating user in database...");
       const dbUser = {
@@ -181,10 +181,10 @@ export class SupabaseStorage implements IStorage {
         is_active: true,
         is_restricted: false
       };
-      
+
       console.log('Database user data:', dbUser);
       const { data, error } = await supabase.from("users").insert(dbUser).select().single();
-      
+
       if (error) {
         console.error('Error creating user in database:', error);
         throw new Error(`Failed to create user in database: ${error.message}`);
@@ -202,11 +202,11 @@ export class SupabaseStorage implements IStorage {
   async getAllUsers(): Promise<User[] | null> {
     const { data, error } = await supabase.from("users").select();
     if (error) throw error;
-    
+
     console.log("Raw database data:", data);
     const transformed = data?.map(transformUserData) || null;
     console.log("Transformed data:", transformed);
-    
+
     return transformed;
   }
 
@@ -218,7 +218,7 @@ export class SupabaseStorage implements IStorage {
     if (user.fullName !== undefined) dbUser.full_name = user.fullName;
     if (user.role !== undefined) dbUser.role = user.role;
     if (user.password !== undefined) dbUser.password = user.password;
-    
+
     const { data, error } = await supabase.from("users").update(dbUser).eq("id", id).select().single();
     if (error) throw error;
     return data ? transformUserData(data) : null;
@@ -229,14 +229,14 @@ export class SupabaseStorage implements IStorage {
       // Step 1: Delete from Supabase Auth
       console.log("Deleting user from Supabase Auth:", id);
       const { error: authError } = await supabaseAdmin.auth.admin.deleteUser(id);
-      
+
       if (authError) {
         console.error('Auth deletion error:', authError);
         // Continue with database deletion even if auth deletion fails
       } else {
         console.log('User deleted from Auth successfully');
       }
-      
+
       // Step 2: Delete from database
       console.log("Deleting user from database:", id);
       const { error } = await supabase.from("users").delete().eq("id", id);
@@ -244,7 +244,7 @@ export class SupabaseStorage implements IStorage {
         console.error('Database deletion error:', error);
         throw error;
       }
-      
+
       console.log('User deleted from database successfully');
       return true;
     } catch (error) {
@@ -263,14 +263,14 @@ export class SupabaseStorage implements IStorage {
         users!created_by(*),
         papers (*)
       `).order('created_at', { ascending: false });
-      
+
       if (error) {
         console.error('Error fetching all documents:', error);
         return [];
       }
-      
+
       console.log(`Fetched ${data?.length || 0} documents`);
-      
+
       // Add is_favorited field (default to false for backward compatibility)
       const documentsWithFavorites = data?.map((doc: any) => ({
         ...doc,
@@ -278,7 +278,7 @@ export class SupabaseStorage implements IStorage {
         users: doc.users,
         is_favorited: false // Default to false when no user context
       })) || [];
-      
+
       return documentsWithFavorites;
     } catch (error) {
       console.error('Exception in getAllDocuments:', error);
@@ -289,14 +289,14 @@ export class SupabaseStorage implements IStorage {
   async getDocument(id: string): Promise<DocumentWithDetails | null> {
     try {
       console.log(`🔍 Fetching document with ID: ${id}`);
-      
+
       const { data, error } = await supabase.from("documents").select(`
         *,
         sections (*),
         users!created_by(*),
         papers (*)
       `).eq("id", id).single();
-      
+
       if (error) {
         console.error('Error fetching document:', error);
         // Return sample data if document not found
@@ -312,25 +312,25 @@ export class SupabaseStorage implements IStorage {
           updated_at: new Date().toISOString(),
           is_favorited: false,
           description: 'وثيقة تجريبية للاختبار',
-          sections: { 
-            id: 'section-1', 
-            row_id: 'row-1', 
-            label: 'قسم التجاري', 
-            created_at: new Date().toISOString() 
+          sections: {
+            id: 'section-1',
+            row_id: 'row-1',
+            label: 'قسم التجاري',
+            created_at: new Date().toISOString()
           },
-          users: { 
-            id: 'user-1', 
-            username: 'admin', 
-            email: 'admin@court.gov.ma', 
-            full_name: 'مدير النظام', 
-            role: 'admin', 
-            is_active: true, 
-            created_at: new Date().toISOString() 
+          users: {
+            id: 'user-1',
+            username: 'admin',
+            email: 'admin@court.gov.ma',
+            fullName: 'مدير النظام',
+            role: 'admin',
+            isActive: true,
+            created_at: new Date().toISOString()
           },
           papers: []
         };
       }
-      
+
       console.log(`✅ Document found: ${data.title} with ${data.papers?.length || 0} papers`);
       return data;
     } catch (error) {
@@ -339,15 +339,36 @@ export class SupabaseStorage implements IStorage {
     }
   }
 
-  async createDocument(document: InsertDocument): Promise<Document | null> {
+  async createDocument(document: InsertDocument, userId?: string): Promise<Document | null> {
     try {
       console.log('Creating document with data:', document);
-      const { data, error } = await supabase.from("documents").insert(document).select().single();
+      const { data, error } = await supabaseAdmin.from("documents").insert(document).select().single();
       if (error) {
         console.error('Error creating document:', error);
         throw error;
       }
+
       console.log('Document created successfully:', data);
+
+      // Log activity if userId is provided
+      if (userId) {
+        try {
+          await this.logUserActivity(
+            userId,
+            'create_document',
+            'document',
+            data.id,
+            {
+              document_title: data.title,
+              document_reference: data.reference,
+              category: data.category
+            }
+          );
+        } catch (logError) {
+          console.error('Error logging creation activity:', logError);
+        }
+      }
+
       return data;
     } catch (error) {
       console.error('Exception in createDocument:', error);
@@ -356,7 +377,7 @@ export class SupabaseStorage implements IStorage {
   }
 
   async updateDocument(id: string, document: Partial<InsertDocument>): Promise<Document | null> {
-    const { data, error } = await supabase.from("documents").update(document).eq("id", id).select().single();
+    const { data, error } = await supabaseAdmin.from("documents").update(document).eq("id", id).select().single();
     if (error) {
       console.error('Error updating document:', error);
       return null;
@@ -364,15 +385,34 @@ export class SupabaseStorage implements IStorage {
     return data;
   }
 
-  async deleteDocument(id: string): Promise<boolean> {
+  async deleteDocument(id: string, userId?: string): Promise<boolean> {
     try {
       console.log(`🗑️ Deleting document with ID: ${id}`);
-      
+
       // First, get the document to find related papers
       const document = await this.getDocument(id);
       if (!document) {
         console.log(`❌ Document not found: ${id}`);
         return false;
+      }
+
+      // Log the deletion activity if userId is provided
+      if (userId) {
+        try {
+          await this.logUserActivity(
+            userId,
+            'delete_document',
+            'document',
+            id,
+            {
+              document_title: document.title,
+              document_reference: document.reference,
+              category: document.category
+            }
+          );
+        } catch (logError) {
+          console.error('Error logging deletion activity:', logError);
+        }
       }
 
       // Delete files from storage bucket first
@@ -385,7 +425,7 @@ export class SupabaseStorage implements IStorage {
               const { error: storageError } = await supabase.storage
                 .from('archive-documents')
                 .remove([paper.attachment_url]);
-              
+
               if (storageError) {
                 console.error(`Error deleting file ${paper.attachment_url}:`, storageError);
               } else {
@@ -395,13 +435,13 @@ export class SupabaseStorage implements IStorage {
               console.error(`Exception deleting file ${paper.attachment_url}:`, storageErr);
             }
           }
-          
+
           // Delete paper record from database
           const { error: paperError } = await supabase
             .from("papers")
             .delete()
             .eq("id", paper.id);
-          
+
           if (paperError) {
             console.error(`Error deleting paper ${paper.id}:`, paperError);
           } else {
@@ -415,7 +455,7 @@ export class SupabaseStorage implements IStorage {
         .from("comments")
         .delete()
         .eq("document_id", id);
-      
+
       if (commentsError) {
         console.error('Error deleting comments:', commentsError);
       } else {
@@ -427,7 +467,7 @@ export class SupabaseStorage implements IStorage {
         .from("recommendations")
         .delete()
         .eq("document_id", id);
-      
+
       if (recommendationsError) {
         console.error('Error deleting recommendations:', recommendationsError);
       } else {
@@ -439,7 +479,7 @@ export class SupabaseStorage implements IStorage {
         .from("reports")
         .delete()
         .eq("document_id", id);
-      
+
       if (reportsError) {
         console.error('Error deleting reports:', reportsError);
       } else {
@@ -451,7 +491,7 @@ export class SupabaseStorage implements IStorage {
         .from("activity_logs")
         .delete()
         .eq("document_id", id);
-      
+
       if (activityLogsError) {
         console.error('Error deleting activity logs:', activityLogsError);
       } else {
@@ -463,7 +503,7 @@ export class SupabaseStorage implements IStorage {
         .from("documents")
         .delete()
         .eq("id", id);
-      
+
       if (documentError) {
         console.error('Error deleting document:', documentError);
         return false;
@@ -576,7 +616,7 @@ export class SupabaseStorage implements IStorage {
         sections (*),
         users!created_by(*)
       `).order("created_at", { ascending: false }).limit(limit);
-      
+
       if (error) {
         console.error('Error with joins, trying without:', error);
         // Fallback to simple query without joins
@@ -585,12 +625,12 @@ export class SupabaseStorage implements IStorage {
           .select("*")
           .order("created_at", { ascending: false })
           .limit(limit);
-        
+
         if (simpleError) {
           console.error('Error fetching recent documents:', simpleError);
           return [];
         }
-        
+
         // Transform simple data to match expected format
         return (simpleData || []).map(doc => ({
           ...doc,
@@ -598,7 +638,7 @@ export class SupabaseStorage implements IStorage {
           users: null
         })) as DocumentWithDetails[];
       }
-      
+
       return data || [];
     } catch (error) {
       console.error('Unexpected error fetching recent documents:', error);
@@ -613,7 +653,7 @@ export class SupabaseStorage implements IStorage {
       .select("*")
       .eq("document_id", documentId)
       .order("created_at", { ascending: false });
-    
+
     if (error) {
       console.error('Error fetching papers:', error);
       return [];
@@ -627,7 +667,7 @@ export class SupabaseStorage implements IStorage {
       .insert(paper)
       .select()
       .single();
-    
+
     if (error) {
       console.error('Error creating paper:', error);
       return null;
@@ -642,7 +682,7 @@ export class SupabaseStorage implements IStorage {
       .eq("id", id)
       .select()
       .single();
-    
+
     if (error) {
       console.error('Error updating paper:', error);
       return null;
@@ -671,7 +711,7 @@ export class SupabaseStorage implements IStorage {
           const url = new URL(paper.attachment_url);
           const pathParts = url.pathname.split('/');
           const filePath = pathParts.slice(pathParts.indexOf('archive-documents') + 1).join('/');
-          
+
           const { error: deleteError } = await supabase.storage
             .from('archive-documents')
             .remove([filePath]);
@@ -691,7 +731,7 @@ export class SupabaseStorage implements IStorage {
         .from("papers")
         .delete()
         .eq("id", id);
-      
+
       if (error) {
         console.error('Error deleting paper:', error);
         return false;
@@ -723,7 +763,7 @@ export class SupabaseStorage implements IStorage {
         )
       `)
       .order('created_at', { ascending: false });
-    
+
     if (error) {
       console.error('Error fetching recommendations:', error);
       return null;
@@ -752,7 +792,7 @@ export class SupabaseStorage implements IStorage {
       `)
       .eq("id", id)
       .single();
-    
+
     if (error) {
       console.error('Error fetching recommendation:', error);
       return null;
@@ -766,7 +806,7 @@ export class SupabaseStorage implements IStorage {
       .insert(recommendation)
       .select()
       .single();
-    
+
     if (error) {
       console.error('Error creating recommendation:', error);
       return null;
@@ -781,7 +821,7 @@ export class SupabaseStorage implements IStorage {
       .eq("id", id)
       .select()
       .single();
-    
+
     if (error) {
       console.error('Error updating recommendation:', error);
       return null;
@@ -794,7 +834,7 @@ export class SupabaseStorage implements IStorage {
       .from("recommendations")
       .delete()
       .eq("id", id);
-    
+
     if (error) {
       console.error('Error deleting recommendation:', error);
       return false;
@@ -822,7 +862,7 @@ export class SupabaseStorage implements IStorage {
         )
       `)
       .order('created_at', { ascending: false });
-    
+
     if (error) {
       console.error('Error fetching comments:', error);
       return null;
@@ -851,7 +891,7 @@ export class SupabaseStorage implements IStorage {
       `)
       .eq("id", id)
       .single();
-    
+
     if (error) {
       console.error('Error fetching comment:', error);
       return null;
@@ -865,7 +905,7 @@ export class SupabaseStorage implements IStorage {
       .insert(comment)
       .select()
       .single();
-    
+
     if (error) {
       console.error('Error creating comment:', error);
       return null;
@@ -880,7 +920,7 @@ export class SupabaseStorage implements IStorage {
       .eq("id", id)
       .select()
       .single();
-    
+
     if (error) {
       console.error('Error updating comment:', error);
       return null;
@@ -893,7 +933,7 @@ export class SupabaseStorage implements IStorage {
       .from("comments")
       .delete()
       .eq("id", id);
-    
+
     if (error) {
       console.error('Error deleting comment:', error);
       return false;
@@ -921,7 +961,7 @@ export class SupabaseStorage implements IStorage {
         )
       `)
       .order('created_at', { ascending: false });
-    
+
     if (error) {
       console.error('Error fetching reports:', error);
       return null;
@@ -950,7 +990,7 @@ export class SupabaseStorage implements IStorage {
       `)
       .eq("id", id)
       .single();
-    
+
     if (error) {
       console.error('Error fetching report:', error);
       return null;
@@ -964,7 +1004,7 @@ export class SupabaseStorage implements IStorage {
       .insert(report)
       .select()
       .single();
-    
+
     if (error) {
       console.error('Error creating report:', error);
       return null;
@@ -979,7 +1019,7 @@ export class SupabaseStorage implements IStorage {
       .eq("id", id)
       .select()
       .single();
-    
+
     if (error) {
       console.error('Error updating report:', error);
       return null;
@@ -992,7 +1032,7 @@ export class SupabaseStorage implements IStorage {
       .from("reports")
       .delete()
       .eq("id", id);
-    
+
     if (error) {
       console.error('Error deleting report:', error);
       return false;
@@ -1009,7 +1049,7 @@ export class SupabaseStorage implements IStorage {
         p_reason: reason,
         p_restrict: restrict
       });
-      
+
       if (error) {
         console.error('Error restricting user:', error);
         return false;
@@ -1026,7 +1066,7 @@ export class SupabaseStorage implements IStorage {
       // Step 1: Delete from Supabase Auth
       console.log("Permanently deleting user from Supabase Auth:", userId);
       const { error: authError } = await supabaseAdmin.auth.admin.deleteUser(userId);
-      
+
       if (authError) {
         console.error('Auth deletion error:', authError);
         // Continue with database deletion even if auth deletion fails
@@ -1039,7 +1079,7 @@ export class SupabaseStorage implements IStorage {
       const { error } = await supabase.rpc('permanently_delete_user', {
         p_user_id: userId
       });
-      
+
       if (error) {
         console.error('Error permanently deleting user from database:', error);
         return false;
@@ -1058,7 +1098,7 @@ export class SupabaseStorage implements IStorage {
       const { data, error } = await supabase.rpc('get_user_stats', {
         p_user_id: userId
       });
-      
+
       if (error) {
         console.error('Error getting user stats:', error);
         return null;
@@ -1078,7 +1118,7 @@ export class SupabaseStorage implements IStorage {
         .eq("user_id", userId)
         .order("created_at", { ascending: false })
         .limit(limit);
-      
+
       if (error) {
         console.error('Error getting user activity logs:', error);
         return null;
@@ -1122,7 +1162,7 @@ export class SupabaseStorage implements IStorage {
       // Calculate statistics
       const totalActivities = activityLogs?.length || 0;
       const activeUsers = new Set(activityLogs?.map(log => log.user_id) || []).size;
-      
+
       // Activity breakdown by resource type
       const activityBreakdown = {
         documentActions: activityLogs?.filter(log => log.resource_type === 'document').length || 0,
@@ -1220,12 +1260,28 @@ export class SupabaseStorage implements IStorage {
         archived: allDocuments?.filter(doc => doc.status === 'archived').length || 0,
       };
 
+      // Get deleted documents count from activity logs
+      let deletedCount = 0;
+      try {
+        const { count, error: deleteLogError } = await supabase
+          .from("user_activity_logs")
+          .select("*", { count: 'exact', head: true })
+          .eq('action', 'delete_document')
+          .gte("created_at", startDateStr);
+
+        if (!deleteLogError) {
+          deletedCount = count || 0;
+        }
+      } catch (e) {
+        console.error('Error counting deletions:', e);
+      }
+
       return {
         period: `${days} أيام`,
         totalDocuments: allDocuments?.length || 0,
         newDocuments: newDocuments?.length || 0,
         updatedDocuments: updatedDocuments?.length || 0,
-        deletedDocuments: 0, // We don't track deletions in current schema
+        deletedDocuments: deletedCount,
         documentsByCategory,
         documentsByStatus
       };
@@ -1238,7 +1294,7 @@ export class SupabaseStorage implements IStorage {
   async getSystemHealthReportData(): Promise<any> {
     try {
       const startTime = Date.now();
-      
+
       // Get all users
       const { data: users, error: usersError } = await supabase
         .from("users")
@@ -1278,7 +1334,7 @@ export class SupabaseStorage implements IStorage {
 
       // Performance testing
       const performanceTests = await this.runPerformanceTests();
-      
+
       // Calculate user statistics
       const totalUsers = users?.length || 0;
       const activeUsers = users?.filter(u => u.is_active && !u.is_restricted).length || 0;
@@ -1424,7 +1480,7 @@ export class SupabaseStorage implements IStorage {
 
   private determineSystemStatus(data: any): string {
     const { totalUsers, activeUsers, restrictedUsers, recentActivity, documents, performanceTests } = data;
-    
+
     // Check performance tests
     const failedTests = Object.values(performanceTests).filter((test: any) => test.status === 'failed').length;
     if (failedTests > 0) {
@@ -1549,7 +1605,7 @@ export class SupabaseStorage implements IStorage {
         .from("system_reports")
         .select("*")
         .order("created_at", { ascending: false });
-      
+
       if (error) {
         console.error('Error getting system reports:', error);
         return null;
@@ -1568,7 +1624,7 @@ export class SupabaseStorage implements IStorage {
         .select("*")
         .eq("id", id)
         .single();
-      
+
       if (error) {
         console.error('Error getting system report:', error);
         return null;
@@ -1587,7 +1643,7 @@ export class SupabaseStorage implements IStorage {
         .insert(report)
         .select()
         .single();
-      
+
       if (error) {
         console.error('Error creating system report:', error);
         return null;
@@ -1605,7 +1661,7 @@ export class SupabaseStorage implements IStorage {
         .from("system_reports")
         .delete()
         .eq("id", id);
-      
+
       if (error) {
         console.error('Error deleting system report:', error);
         return false;
@@ -1636,7 +1692,7 @@ export class SupabaseStorage implements IStorage {
   async addUserFavorite(userId: string, documentId: string): Promise<UserFavorite | null> {
     try {
       console.log('🌟 Storage: Adding favorite for user:', userId, 'document:', documentId);
-      
+
       // Use supabaseAdmin to bypass RLS policies
       const { data, error } = await supabaseAdmin
         .from('user_favorites')
@@ -1650,7 +1706,7 @@ export class SupabaseStorage implements IStorage {
       if (error) {
         console.error('❌ Storage: Error adding user favorite:', error);
         console.error('❌ Error details:', error.message, error.code, error.details);
-        
+
         // If table doesn't exist, return a mock response for testing
         if (error.code === '42P01' || error.message.includes('relation "user_favorites" does not exist')) {
           console.log('⚠️ user_favorites table does not exist, returning mock response');
@@ -1661,7 +1717,7 @@ export class SupabaseStorage implements IStorage {
             created_at: new Date().toISOString()
           };
         }
-        
+
         // If RLS policy violation, try with admin client
         if (error.code === '42501') {
           console.log('🔄 RLS policy violation detected, trying with admin client...');
@@ -1673,16 +1729,16 @@ export class SupabaseStorage implements IStorage {
             })
             .select()
             .single();
-            
+
           if (adminError) {
             console.error('❌ Admin client also failed:', adminError);
             return null;
           }
-          
+
           console.log('✅ Storage: Successfully added favorite with admin client:', adminData);
           return adminData;
         }
-        
+
         return null;
       }
 
@@ -1775,14 +1831,15 @@ export class SupabaseStorage implements IStorage {
   async getAllDocumentsWithUserFavorites(userId: string): Promise<DocumentWithDetails[] | null> {
     try {
       console.log('🔍 Getting all documents with user favorites for user:', userId);
-      
+
       // First, get all documents
       const { data: documents, error: docsError } = await supabase
         .from('documents')
         .select(`
           *,
           sections (*),
-          users!created_by(*)
+          users!created_by(*),
+          papers (*)
         `);
 
       if (docsError) {
@@ -1803,7 +1860,7 @@ export class SupabaseStorage implements IStorage {
 
       // Create a set of favorited document IDs for quick lookup
       const favoritedIds = new Set(favorites?.map(fav => fav.document_id) || []);
-      
+
       console.log('📄 Found', documents?.length || 0, 'documents');
       console.log('⭐ Found', favorites?.length || 0, 'favorites for user');
       console.log('⭐ Favorited document IDs:', Array.from(favoritedIds));

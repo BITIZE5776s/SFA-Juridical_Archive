@@ -5,22 +5,22 @@ import { useAuth } from "@/hooks/use-auth";
 import { CATEGORIES } from "@/lib/constants";
 import { getDocumentTypeConfig } from "@/lib/document-types";
 import { useQuery } from "@tanstack/react-query";
-import { 
-  Home, 
-  Folder, 
-  FileText, 
-  Star, 
-  Clock, 
-  Users, 
-  Scale, 
-  Gavel, 
-  Handshake, 
-  Building, 
-  Lightbulb, 
-  MessageSquare, 
-  Flag, 
-  Settings, 
-  BarChart3, 
+import {
+  Home,
+  Folder,
+  FileText,
+  Star,
+  Clock,
+  Users,
+  Scale,
+  Gavel,
+  Handshake,
+  Building,
+  Lightbulb,
+  MessageSquare,
+  Flag,
+  Settings,
+  BarChart3,
   Plus,
   UserCog,
   Shield
@@ -75,7 +75,7 @@ export function Sidebar({ onNewDocument, onCategorySelect, isOpen = true, onTogg
   });
 
   // Filter documents to get only favorites and count them
-  const favoritesCount = allDocuments.filter(doc => doc.is_favorited).length;
+  const favoritesCount = allDocuments.filter((doc: any) => doc.is_favorited).length;
 
   const navigation = [
     {
@@ -112,16 +112,7 @@ export function Sidebar({ onNewDocument, onCategorySelect, isOpen = true, onTogg
       color: "text-yellow-600",
       bgColor: "bg-yellow-50",
     },
-    {
-      name: "في انتظار الموافقة",
-      href: "/pending",
-      icon: Clock,
-      current: location === "/pending",
-      badge: stats?.pending_documents?.toString() || "0",
-      badgeColor: "bg-orange-500 text-white",
-      color: "text-orange-600",
-      bgColor: "bg-orange-50",
-    },
+
   ];
 
   // Generate categories dynamically from constants
@@ -230,7 +221,7 @@ export function Sidebar({ onNewDocument, onCategorySelect, isOpen = true, onTogg
                     <span
                       className={cn(
                         "text-xs px-2 py-1 rounded-full font-medium",
-                        item.badgeColor || "bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300"
+                        "bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300"
                       )}
                     >
                       {item.badge}

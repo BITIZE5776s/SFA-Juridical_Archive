@@ -306,19 +306,19 @@ export function PaperManagement({ documentId, blockLabel, documentTitle }: Paper
   const handleDownload = async (paper: Paper) => {
     try {
       if (!paper.attachment_url) return;
-      
+
       // Fetch the file
       const response = await fetch(paper.attachment_url);
       const blob = await response.blob();
-      
+
       // Create download link with proper filename
       const url = window.URL.createObjectURL(blob);
       const link = document.createElement('a');
       link.href = url;
-      
+
       // Use the paper title as filename (it already includes the extension)
       link.download = paper.title;
-      
+
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
@@ -372,10 +372,10 @@ export function PaperManagement({ documentId, blockLabel, documentTitle }: Paper
           {canManageDocuments() && (
             <div className="flex items-center space-x-2 space-x-reverse">
               <Button
-                variant="outline"
                 size="sm"
                 onClick={() => fileInputRef.current?.click()}
                 disabled={isUploading}
+                className="bg-blue-600 hover:bg-blue-700 text-white shadow-sm"
               >
                 <i className="fas fa-upload ml-2"></i>
                 رفع ملف
@@ -388,17 +388,6 @@ export function PaperManagement({ documentId, blockLabel, documentTitle }: Paper
               >
                 <i className="fas fa-upload ml-2"></i>
                 رفع جماعي
-              </Button>
-              <Button
-                onClick={() => {
-                  setEditingPaper(null);
-                  form.reset();
-                  setIsAddingPaper(true);
-                }}
-                disabled={isUploading}
-              >
-                <i className="fas fa-plus ml-2"></i>
-                إضافة ورقة
               </Button>
             </div>
           )}
@@ -497,12 +486,12 @@ export function PaperManagement({ documentId, blockLabel, documentTitle }: Paper
                   >
                     إلغاء
                   </Button>
-                  <Button 
-                    type="submit" 
+                  <Button
+                    type="submit"
                     disabled={createPaperMutation.isPending || updatePaperMutation.isPending}
                   >
-                    {(createPaperMutation.isPending || updatePaperMutation.isPending) 
-                      ? "جاري الحفظ..." 
+                    {(createPaperMutation.isPending || updatePaperMutation.isPending)
+                      ? "جاري الحفظ..."
                       : "حفظ"
                     }
                   </Button>
@@ -536,7 +525,7 @@ export function PaperManagement({ documentId, blockLabel, documentTitle }: Paper
                   <p className="text-xs text-gray-600 mt-1 line-clamp-2">{paper.content}</p>
                 )}
                 {paper.attachment_url && (
-                  <button 
+                  <button
                     onClick={() => handleDownload(paper)}
                     className="text-xs text-blue-600 hover:text-blue-800 mt-1 inline-block"
                   >
@@ -558,9 +547,9 @@ export function PaperManagement({ documentId, blockLabel, documentTitle }: Paper
                   </Button>
                   <AlertDialog>
                     <AlertDialogTrigger asChild>
-                      <Button 
-                        variant="outline" 
-                        size="sm" 
+                      <Button
+                        variant="outline"
+                        size="sm"
                         className="text-red-600 hover:text-red-700 hover:bg-red-50 border-red-200"
                       >
                         <i className="fas fa-trash ml-1"></i>

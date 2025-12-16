@@ -16,16 +16,16 @@ import { useToast } from "@/hooks/use-toast";
 import { formatDateArabic } from "@/lib/utils";
 import { z } from "zod";
 import { Link } from "wouter";
-import { 
-  User, 
-  Lock, 
-  History, 
-  ChevronLeft, 
-  Shield, 
-  CheckCircle, 
-  AlertCircle, 
-  Clock, 
-  FileText, 
+import {
+  User,
+  Lock,
+  History,
+  ChevronLeft,
+  Shield,
+  CheckCircle,
+  AlertCircle,
+  Clock,
+  FileText,
   Activity,
   Mail,
   Phone,
@@ -58,14 +58,14 @@ type PasswordFormData = z.infer<typeof passwordSchema>;
 export default function Profile() {
   const { user, login } = useAuth();
   const { toast } = useToast();
-  const [activeTab, setActiveTab] = useState<'profile' | 'password' | 'activity'>('profile');
+  const [activeTab, setActiveTab] = useState<'profile' | 'activity'>('profile');
   const [adminName, setAdminName] = useState<string>('');
 
   // Fetch admin information when component mounts
   useEffect(() => {
     const fetchAdminInfo = async () => {
       if (!user?.restrictedBy) return;
-      
+
       try {
         const response = await fetch(`/api/users/${user.restrictedBy}`);
         if (response.ok) {
@@ -101,10 +101,13 @@ export default function Profile() {
   });
 
   // Fetch user activity
+  // Fetch user activity
   const { data: userActivity = [] } = useQuery({
-    queryKey: ["/api/user/activity"],
+    queryKey: ["/api/user/activity", user?.id],
+    enabled: !!user?.id,
     queryFn: async () => {
-      const response = await fetch("/api/user/activity");
+      if (!user?.id) return [];
+      const response = await fetch(`/api/user/activity?userId=${user.id}`);
       if (!response.ok) return [];
       return response.json();
     },
@@ -324,7 +327,6 @@ export default function Profile() {
               <nav className="flex space-x-2 space-x-reverse">
                 {[
                   { id: 'profile', label: 'الملف الشخصي', icon: User },
-                  { id: 'password', label: 'كلمة المرور', icon: Lock },
                   { id: 'activity', label: 'النشاط', icon: History },
                 ].map((tab) => {
                   const IconComponent = tab.icon;
@@ -332,11 +334,10 @@ export default function Profile() {
                     <button
                       key={tab.id}
                       onClick={() => setActiveTab(tab.id as any)}
-                      className={`flex-1 py-3 px-4 rounded-xl font-medium text-sm flex items-center justify-center space-x-2 space-x-reverse transition-all duration-200 ${
-                        activeTab === tab.id
-                          ? 'bg-gradient-to-r from-blue-500 to-purple-600 text-white shadow-lg transform scale-105'
-                          : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white hover:bg-white/50 dark:hover:bg-gray-700/50'
-                      }`}
+                      className={`flex-1 py-3 px-4 rounded-xl font-medium text-sm flex items-center justify-center space-x-2 space-x-reverse transition-all duration-200 ${activeTab === tab.id
+                        ? 'bg-gradient-to-r from-blue-500 to-purple-600 text-white shadow-lg transform scale-105'
+                        : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white hover:bg-white/50 dark:hover:bg-gray-700/50'
+                        }`}
                     >
                       <IconComponent className="w-4 h-4" />
                       <span>{tab.label}</span>
@@ -444,8 +445,8 @@ export default function Profile() {
                           )}
                         />
                       </div>
-                      <Button 
-                        type="submit" 
+                      <Button
+                        type="submit"
                         disabled={updateProfileMutation.isPending}
                         className="w-full bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white font-medium py-3 rounded-xl shadow-lg hover:shadow-xl transition-all duration-200"
                       >
@@ -518,80 +519,7 @@ export default function Profile() {
           </div>
         )}
 
-        {/* Password Tab */}
-        {activeTab === 'password' && (
-          <div className="max-w-2xl">
-            <Card className="bg-white/80 backdrop-blur-sm border-0 shadow-xl rounded-2xl overflow-hidden">
-              <CardHeader className="bg-gradient-to-r from-red-500 to-pink-600 text-white">
-                <CardTitle className="flex items-center space-x-2 space-x-reverse">
-                  <Lock className="w-5 h-5" />
-                  <span>تغيير كلمة المرور</span>
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="p-8">
-                <Form {...passwordForm}>
-                  <form onSubmit={passwordForm.handleSubmit(onPasswordSubmit)} className="space-y-6">
-                    <FormField
-                      control={passwordForm.control}
-                      name="currentPassword"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel className="flex items-center space-x-2 space-x-reverse text-sm font-medium text-gray-700">
-                            <Key className="w-4 h-4" />
-                            <span>كلمة المرور الحالية</span>
-                          </FormLabel>
-                          <FormControl>
-                            <Input {...field} type="password" className="bg-white/50 border-gray-200 focus:border-red-500 focus:ring-red-500 rounded-xl" />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                    <FormField
-                      control={passwordForm.control}
-                      name="newPassword"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel className="flex items-center space-x-2 space-x-reverse text-sm font-medium text-gray-700">
-                            <Lock className="w-4 h-4" />
-                            <span>كلمة المرور الجديدة</span>
-                          </FormLabel>
-                          <FormControl>
-                            <Input {...field} type="password" className="bg-white/50 border-gray-200 focus:border-red-500 focus:ring-red-500 rounded-xl" />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                    <FormField
-                      control={passwordForm.control}
-                      name="confirmPassword"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel className="flex items-center space-x-2 space-x-reverse text-sm font-medium text-gray-700">
-                            <Lock className="w-4 h-4" />
-                            <span>تأكيد كلمة المرور الجديدة</span>
-                          </FormLabel>
-                          <FormControl>
-                            <Input {...field} type="password" className="bg-white/50 border-gray-200 focus:border-red-500 focus:ring-red-500 rounded-xl" />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                    <Button 
-                      type="submit" 
-                      disabled={changePasswordMutation.isPending}
-                      className="w-full bg-gradient-to-r from-red-500 to-pink-600 hover:from-red-600 hover:to-pink-700 text-white font-medium py-3 rounded-xl shadow-lg hover:shadow-xl transition-all duration-200"
-                    >
-                      {changePasswordMutation.isPending ? 'جاري التغيير...' : 'تغيير كلمة المرور'}
-                    </Button>
-                  </form>
-                </Form>
-              </CardContent>
-            </Card>
-          </div>
-        )}
+
 
         {/* Activity Tab */}
         {activeTab === 'activity' && (
@@ -612,7 +540,14 @@ export default function Profile() {
                           <Activity className="w-6 h-6 text-white" />
                         </div>
                         <div className="flex-1">
-                          <p className="text-sm font-semibold text-gray-900 mb-1">{activity.action}</p>
+                          <p className="text-sm font-semibold text-gray-900 mb-1">
+                            {activity.action === 'create_document' ? 'إضافة وثيقة' :
+                              activity.action === 'delete_document' ? 'حذف وثيقة' :
+                                activity.action === 'login' ? 'تسجيل الدخول' :
+                                  activity.action === 'logout' ? 'تسجيل الخروج' :
+                                    activity.action === 'update_profile' ? 'تحديث الملف الشخصي' :
+                                      activity.action}
+                          </p>
                           <p className="text-xs text-gray-600 dark:text-gray-400">{activity.details}</p>
                         </div>
                         <div className="text-xs text-gray-500 bg-white/50 px-3 py-1 rounded-full">

@@ -10,7 +10,7 @@ import { ReportProblemModal } from "@/components/report-problem-modal";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { 
+import {
   Select,
   SelectContent,
   SelectItem,
@@ -61,13 +61,13 @@ export default function Documents() {
   const [isRecommendationModalOpen, setIsRecommendationModalOpen] = useState(false);
   const [isReportProblemModalOpen, setIsReportProblemModalOpen] = useState(false);
   const [selectedDocument, setSelectedDocument] = useState<DocumentWithDetails | null>(null);
-  
+
   // Determine if we're on the favorites page
   const isFavoritesPage = location === "/favorites";
-  
+
   // Auto-refresh for favorites page
   useAutoRefresh();
-  
+
   // Download and Delete states
   const [showDownloadDialog, setShowDownloadDialog] = useState(false);
   const [showEmptyDocumentDialog, setShowEmptyDocumentDialog] = useState(false);
@@ -81,7 +81,7 @@ export default function Documents() {
     // Check for URL parameters first
     const urlParams = new URLSearchParams(window.location.search);
     const categoryFromUrl = urlParams.get('category');
-    
+
     if (categoryFromUrl) {
       // If category is in URL, clear other filters and set only the category
       setSearchQuery("");
@@ -157,14 +157,14 @@ export default function Documents() {
   });
 
   // Filter documents based on current page
-  const filteredDocuments = isFavoritesPage 
+  const filteredDocuments = isFavoritesPage
     ? documents.filter(doc => doc.is_favorited)
     : documents;
 
   // Delete mutation
   const deleteDocumentMutation = useMutation({
     mutationFn: async (documentId: string) => {
-      return apiRequest("DELETE", `/api/documents/${documentId}`);
+      return apiRequest("DELETE", `/api/documents/${documentId}`, { userId: user?.id });
     },
     onSuccess: () => {
       toast({
@@ -176,12 +176,12 @@ export default function Documents() {
       queryClient.invalidateQueries({ queryKey: ["/api/dashboard/user-activity", user?.id] });
       queryClient.invalidateQueries({ queryKey: ["/api/dashboard/recent-documents"] });
       queryClient.invalidateQueries({ queryKey: ["/api/documents/favorites", user?.id] });
-      
+
       // Force refetch critical queries
       queryClient.refetchQueries({ queryKey: ["/api/documents"] });
       queryClient.refetchQueries({ queryKey: ["/api/dashboard/stats"] });
       queryClient.refetchQueries({ queryKey: ["/api/documents/favorites", user?.id] });
-      
+
       setShowDeleteDialog(false);
       setDocumentToDelete(null);
     },
@@ -224,11 +224,11 @@ export default function Documents() {
 
   const handleDownloadConfirm = async () => {
     if (!documentToDownload) return;
-    
+
     setIsDownloading(true);
     try {
       console.log(`📥 Starting download for document: ${documentToDownload.id}`);
-      
+
       const response = await fetch(`/api/documents/${documentToDownload.id}/download`, {
         method: 'POST',
         headers: {
@@ -248,7 +248,7 @@ export default function Documents() {
 
       const blob = await response.blob();
       console.log(`📦 ZIP file size: ${blob.size} bytes`);
-      
+
       const url = window.URL.createObjectURL(blob);
       const a = window.document.createElement('a');
       a.href = url;
@@ -256,7 +256,7 @@ export default function Documents() {
       a.style.display = 'none';
       window.document.body.appendChild(a);
       a.click();
-      
+
       setTimeout(() => {
         window.URL.revokeObjectURL(url);
         window.document.body.removeChild(a);
@@ -344,24 +344,24 @@ export default function Documents() {
     setSelectedBlock("all");
     setSortBy("recent");
     setSpecializedSection("");
-    
+
     // Update URL to reflect the category selection
     const newUrl = `/documents?category=${encodeURIComponent(category)}`;
     setLocation(newUrl);
   };
 
   const activeFiltersCount = [
-    searchQuery, 
-    selectedCategory !== "all" ? selectedCategory : "", 
-    selectedStatus !== "all" ? selectedStatus : "", 
+    searchQuery,
+    selectedCategory !== "all" ? selectedCategory : "",
+    selectedStatus !== "all" ? selectedStatus : "",
     selectedBlock !== "all" ? selectedBlock : "",
     specializedSection,
     sortBy !== "recent" ? sortBy : ""
   ].filter(Boolean).length;
 
   return (
-    <MainLayout 
-      onSearch={setSearchQuery} 
+    <MainLayout
+      onSearch={setSearchQuery}
       searchQuery={searchQuery}
       onCategorySelect={handleCategorySelect}
     >
@@ -374,8 +374,8 @@ export default function Documents() {
                 {isFavoritesPage ? "الوثائق المفضلة" : "إدارة الوثائق"}
               </h1>
               <p className="text-gray-600 dark:text-gray-400">
-                {isFavoritesPage 
-                  ? "تصفح وإدارة الوثائق المفضلة" 
+                {isFavoritesPage
+                  ? "تصفح وإدارة الوثائق المفضلة"
                   : "تصفح وإدارة جميع وثائق المحكمة"
                 }
               </p>
@@ -386,8 +386,8 @@ export default function Documents() {
                   <i className="fas fa-plus ml-2"></i>
                   إنشاء وثيقة جديدة
                 </Button>
-                <Button 
-                  variant="outline" 
+                <Button
+                  variant="outline"
                   onClick={() => setIsFileUploadModalOpen(true)}
                 >
                   <i className="fas fa-upload ml-2"></i>
@@ -411,7 +411,7 @@ export default function Documents() {
                 </div>
               )}
             </div>
-            
+
             {/* Individual Active Filters */}
             {activeFiltersCount > 0 && (
               <div className="mt-4 p-4 bg-gray-50 rounded-lg">
@@ -626,9 +626,9 @@ export default function Documents() {
                   {isFavoritesPage ? "لا توجد وثائق مفضلة" : "لم يتم العثور على وثائق"}
                 </h3>
                 <p className="text-gray-600 mb-4">
-                  {isFavoritesPage 
-                    ? "لم تقم بإضافة أي وثائق إلى المفضلة بعد" 
-                    : activeFiltersCount > 0 
+                  {isFavoritesPage
+                    ? "لم تقم بإضافة أي وثائق إلى المفضلة بعد"
+                    : activeFiltersCount > 0
                       ? "لا توجد وثائق تطابق المرشحات المحددة. جرب تعديل المرشحات أو البحث عن شيء آخر"
                       : "جرب تعديل المرشحات أو البحث عن شيء آخر"
                   }
@@ -672,7 +672,7 @@ export default function Documents() {
               documentTitle={selectedDocument.title}
               papers={selectedDocument.papers || []}
             />
-            
+
             <RecommendationModal
               isOpen={isRecommendationModalOpen}
               onClose={() => {
@@ -682,7 +682,7 @@ export default function Documents() {
               documentId={selectedDocument.id}
               documentTitle={selectedDocument.title}
             />
-            
+
             <ReportProblemModal
               isOpen={isReportProblemModalOpen}
               onClose={() => {

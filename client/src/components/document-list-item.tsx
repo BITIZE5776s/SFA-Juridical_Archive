@@ -2,7 +2,7 @@ import { useState } from "react";
 import { type DocumentWithDetails } from "@shared/schema";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { 
+import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
@@ -24,13 +24,13 @@ import { useToast } from "@/hooks/use-toast";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import { getDocumentTypeConfig, getFileTypeFromExtension } from "@/lib/document-types";
-import { 
-  Eye, 
-  Edit, 
-  Trash2, 
-  MessageSquare, 
-  ThumbsUp, 
-  AlertTriangle, 
+import {
+  Eye,
+  Edit,
+  Trash2,
+  MessageSquare,
+  ThumbsUp,
+  AlertTriangle,
   MoreHorizontal,
   Download,
   Share,
@@ -48,31 +48,31 @@ interface DocumentListItemProps {
   onReportProblem?: (id: string) => void;
 }
 
-export function DocumentListItem({ 
-  document, 
-  onViewDocument, 
-  onEditDocument, 
-  onDeleteDocument, 
+export function DocumentListItem({
+  document,
+  onViewDocument,
+  onEditDocument,
+  onDeleteDocument,
   onDownloadDocument,
-  onComment, 
-  onRecommend, 
-  onReportProblem 
+  onComment,
+  onRecommend,
+  onReportProblem
 }: DocumentListItemProps) {
   const { canManageDocuments, hasRole, user } = useAuth();
   const { toast } = useToast();
   const queryClient = useQueryClient();
-  
+
   // State for dialogs
   const [showDownloadDialog, setShowDownloadDialog] = useState(false);
   const [showEmptyDocumentDialog, setShowEmptyDocumentDialog] = useState(false);
   const [isDownloading, setIsDownloading] = useState(false);
-  
+
   const mainPaper = document.papers?.[0];
-  const fileType = getFileTypeFromExtension(mainPaper?.file_name || '');
+  const fileType = getFileTypeFromExtension(mainPaper?.title || '');
   const fileTypeConfig = getDocumentTypeConfig(fileType, 'file');
   const statusConfig = getDocumentTypeConfig(document.status, 'status');
   const caseTypeConfig = getDocumentTypeConfig(document.category, 'case');
-  
+
   const FileIcon = fileTypeConfig.icon;
   const StatusIcon = statusConfig.icon;
   const CaseIcon = caseTypeConfig.icon;
@@ -82,7 +82,7 @@ export function DocumentListItem({
     const mb = bytes / (1024 * 1024);
     return `${mb.toFixed(1)} ميجابايت`;
   };
-  
+
   // Safely format the date with error handling
   const formatTimeAgo = (dateString: string) => {
     try {
@@ -90,9 +90,9 @@ export function DocumentListItem({
       if (isNaN(date.getTime())) {
         return 'تاريخ غير صحيح';
       }
-      return formatDistanceToNow(date, { 
-        addSuffix: true, 
-        locale: ar 
+      return formatDistanceToNow(date, {
+        addSuffix: true,
+        locale: ar
       });
     } catch (error) {
       console.error('Error formatting date:', error);
@@ -108,7 +108,7 @@ export function DocumentListItem({
       console.log("🔄 Toggling favorite for document:", document.id);
       console.log("🔄 Current user:", user);
       console.log("🔄 Current favorite status:", document.is_favorited);
-      
+
       if (document.is_favorited) {
         // Remove from favorites
         console.log("🗑️ Removing from favorites...");
@@ -126,11 +126,11 @@ export function DocumentListItem({
     onSuccess: () => {
       toast({
         title: document.is_favorited ? "تم إزالة من المفضلة" : "تم إضافة إلى المفضلة",
-        description: document.is_favorited 
-          ? "تم إزالة الوثيقة من قائمة المفضلة" 
+        description: document.is_favorited
+          ? "تم إزالة الوثيقة من قائمة المفضلة"
           : "تم إضافة الوثيقة إلى قائمة المفضلة",
       });
-      
+
       // Invalidate all relevant queries for real-time updates
       queryClient.invalidateQueries({ queryKey: ["/api/documents"] });
       queryClient.invalidateQueries({ queryKey: ["/api/documents", document.id] });
@@ -138,21 +138,21 @@ export function DocumentListItem({
       queryClient.invalidateQueries({ queryKey: ["/api/dashboard/stats"] });
       queryClient.invalidateQueries({ queryKey: ["/api/dashboard/user-activity", user?.id] });
       queryClient.invalidateQueries({ queryKey: ["/api/dashboard/recent-documents"] });
-      
+
       // Force refetch critical queries
-      queryClient.refetchQueries({ 
+      queryClient.refetchQueries({
         queryKey: ["/api/documents"],
         type: 'active'
       });
-      queryClient.refetchQueries({ 
+      queryClient.refetchQueries({
         queryKey: ["/api/documents/favorites", user?.id],
         type: 'active'
       });
-      queryClient.refetchQueries({ 
+      queryClient.refetchQueries({
         queryKey: ["/api/dashboard/stats"],
         type: 'active'
       });
-      
+
       console.log("✅ Favorite toggled successfully, refreshing all relevant data");
     },
     onError: (error) => {
@@ -184,7 +184,7 @@ export function DocumentListItem({
     setIsDownloading(true);
     try {
       console.log(`📥 Starting download for document: ${document.id}`);
-      
+
       // Create ZIP file with all papers
       const response = await fetch(`/api/documents/${document.id}/download`, {
         method: 'POST',
@@ -206,7 +206,7 @@ export function DocumentListItem({
 
       const blob = await response.blob();
       console.log(`📦 ZIP file size: ${blob.size} bytes`);
-      
+
       // Create download link
       const url = window.URL.createObjectURL(blob);
       const a = window.document.createElement('a');
@@ -215,7 +215,7 @@ export function DocumentListItem({
       a.style.display = 'none';
       window.document.body.appendChild(a);
       a.click();
-      
+
       // Cleanup
       setTimeout(() => {
         window.URL.revokeObjectURL(url);
@@ -261,7 +261,7 @@ export function DocumentListItem({
   };
 
   return (
-    <div 
+    <div
       className="group flex items-center space-x-4 space-x-reverse p-4 hover:bg-gradient-to-r hover:from-blue-50 hover:to-indigo-50 dark:hover:from-gray-800 dark:hover:to-gray-700 rounded-xl transition-all duration-200 cursor-pointer border border-transparent hover:border-blue-200 dark:hover:border-gray-600 hover:shadow-md"
       onClick={() => onViewDocument?.(document.id)}
     >
@@ -269,7 +269,7 @@ export function DocumentListItem({
       <div className={`w-12 h-12 ${caseTypeConfig.bgColor} ${caseTypeConfig.borderColor} border-2 rounded-xl flex items-center justify-center flex-shrink-0 group-hover:scale-110 transition-transform duration-200 shadow-sm`}>
         <CaseIcon className={`w-6 h-6 ${caseTypeConfig.color}`} />
       </div>
-      
+
       {/* Document Info */}
       <div className="flex-1 min-w-0">
         <div className="flex items-center space-x-2 space-x-reverse mb-2">
@@ -286,7 +286,7 @@ export function DocumentListItem({
             </span>
           </div>
         </div>
-        
+
         <div className="flex items-center space-x-4 space-x-reverse text-xs text-gray-500 dark:text-gray-400">
           <span className="flex items-center space-x-1 space-x-reverse">
             <StatusIcon className="w-3 h-3" />
@@ -296,21 +296,21 @@ export function DocumentListItem({
           <span>{formatFileSize(mainPaper?.file_size ?? undefined)}</span>
         </div>
       </div>
-      
+
       {/* Status Badge and Actions */}
       <div className="flex items-center space-x-2 space-x-reverse">
-        <Badge 
+        <Badge
           className={`${statusConfig.bgColor} ${statusConfig.color} ${statusConfig.borderColor} border font-medium`}
         >
           <StatusIcon className="w-3 h-3 ml-1" />
           {statusConfig.label}
         </Badge>
-        
+
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button 
-              variant="ghost" 
-              size="sm" 
+            <Button
+              variant="ghost"
+              size="sm"
               className="text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-all duration-200"
               onClick={(e) => e.stopPropagation()}
             >
@@ -318,7 +318,7 @@ export function DocumentListItem({
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" className="bg-white/95 dark:bg-gray-800/95 backdrop-blur-sm border-0 shadow-xl rounded-xl">
-            <DropdownMenuItem 
+            <DropdownMenuItem
               onClick={(e) => {
                 e.stopPropagation();
                 onViewDocument?.(document.id);
@@ -328,19 +328,8 @@ export function DocumentListItem({
               <Eye className="w-4 h-4 text-blue-600" />
               <span>عرض الوثيقة</span>
             </DropdownMenuItem>
-            
-            <DropdownMenuItem 
-              onClick={(e) => {
-                e.stopPropagation();
-                handleDownload();
-              }}
-              className="flex items-center space-x-2 space-x-reverse hover:bg-green-50 transition-colors"
-            >
-              <Download className="w-4 h-4 text-green-600" />
-              <span>تحميل</span>
-            </DropdownMenuItem>
-            
-            <DropdownMenuItem 
+
+            <DropdownMenuItem
               onClick={(e) => {
                 e.stopPropagation();
                 handleToggleFavorite();
@@ -350,11 +339,11 @@ export function DocumentListItem({
               <Star className={`w-4 h-4 ${document.is_favorited ? 'text-yellow-600 fill-current' : 'text-yellow-600'}`} />
               <span>{document.is_favorited ? 'إزالة من المفضلة' : 'إضافة إلى المفضلة'}</span>
             </DropdownMenuItem>
-            
+
             {canManageDocuments() && (
               <>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem 
+                <DropdownMenuItem
                   onClick={(e) => {
                     e.stopPropagation();
                     handleEdit();
@@ -364,7 +353,7 @@ export function DocumentListItem({
                   <Edit className="w-4 h-4 text-yellow-600" />
                   <span>تعديل الوثيقة</span>
                 </DropdownMenuItem>
-                <DropdownMenuItem 
+                <DropdownMenuItem
                   onClick={(e) => {
                     e.stopPropagation();
                     handleDelete();
@@ -376,11 +365,11 @@ export function DocumentListItem({
                 </DropdownMenuItem>
               </>
             )}
-            
+
             {hasRole('viewer') && (
               <>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem 
+                <DropdownMenuItem
                   onClick={(e) => {
                     e.stopPropagation();
                     onComment?.(document.id);
@@ -390,7 +379,7 @@ export function DocumentListItem({
                   <MessageSquare className="w-4 h-4 text-indigo-600" />
                   <span>إضافة تعليق</span>
                 </DropdownMenuItem>
-                <DropdownMenuItem 
+                <DropdownMenuItem
                   onClick={(e) => {
                     e.stopPropagation();
                     onRecommend?.(document.id);
@@ -400,7 +389,7 @@ export function DocumentListItem({
                   <ThumbsUp className="w-4 h-4 text-green-600" />
                   <span>توصية</span>
                 </DropdownMenuItem>
-                <DropdownMenuItem 
+                <DropdownMenuItem
                   onClick={(e) => {
                     e.stopPropagation();
                     onReportProblem?.(document.id);
@@ -451,7 +440,7 @@ export function DocumentListItem({
             <Button variant="outline" onClick={() => setShowDownloadDialog(false)}>
               إلغاء
             </Button>
-            <Button 
+            <Button
               onClick={handleDownloadConfirm}
               disabled={isDownloading}
               className="bg-green-600 hover:bg-green-700"

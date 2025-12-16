@@ -26,7 +26,7 @@ const upload = multer({
       'text/plain',
       'application/rtf'
     ];
-    
+
     if (allowedTypes.includes(file.mimetype)) {
       cb(null, true);
     } else {
@@ -40,7 +40,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post("/api/auth/login", async (req, res) => {
     try {
       const { username, password } = loginSchema.parse(req.body);
-      
+
       // Step 1: Try Supabase Auth first
       console.log("Attempting Supabase Auth login for:", username);
       const { data: authData, error: authError } = await supabase.auth.signInWithPassword({
@@ -50,7 +50,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       if (!authError && authData.user) {
         console.log("Supabase Auth login successful for:", username);
-        
+
         // Fetch additional user data from database including restriction status
         try {
           const { data: dbUser, error: dbError } = await supabase
@@ -58,10 +58,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
             .select("*")
             .eq("email", username)
             .single();
-          
+
           if (!dbError && dbUser) {
             console.log("Fetched database user data:", dbUser);
-            
+
             // Log login event
             await supabase
               .from("user_activity_logs")
@@ -75,7 +75,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
                   user_agent: req.get('User-Agent')
                 }
               });
-            
+
             // Enhance the auth user with database restriction data
             const enhancedUser = {
               ...authData.user,
@@ -87,21 +87,21 @@ export async function registerRoutes(app: Express): Promise<Server> {
                 restricted_at: dbUser.restricted_at
               }
             };
-            
+
             console.log("Enhanced user with restriction data:", enhancedUser);
             return res.json({ user: enhancedUser });
           }
         } catch (dbError) {
           console.warn("Failed to fetch database user data:", dbError);
         }
-        
+
         return res.json({ user: authData.user });
       }
 
       // Step 2: If Supabase Auth fails, check database
       console.log("Supabase Auth failed, checking database for:", username);
       console.log("Looking for user with email:", username, "and password:", password);
-      
+
       const { data: dbUser, error: dbError } = await supabase
         .from("users")
         .select("*")
@@ -109,7 +109,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         .eq("password", password)
         .eq("is_active", true)
         .single();
-      
+
       console.log("Database query result:", { dbUser, dbError });
 
       if (dbError || !dbUser) {
@@ -138,7 +138,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         restriction_reason: dbUser.restriction_reason,
         restricted_by: dbUser.restricted_by
       });
-      
+
       const mockUser = {
         id: dbUser.id,
         email: dbUser.email,
@@ -167,7 +167,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       // Get user ID from request if available
       const userId = req.body.userId || req.headers['x-user-id'];
-      
+
       // Log logout event if we have a user ID
       if (userId) {
         await supabase
@@ -215,8 +215,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.status(201).json(user);
     } catch (error) {
       console.error("Error creating user:", error);
-      res.status(400).json({ 
-        message: "فشل في إنشاء المستخدم", 
+      res.status(400).json({
+        message: "فشل في إنشاء المستخدم",
         error: error instanceof Error ? error.message : "Unknown error",
         details: error
       });
@@ -258,9 +258,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const { id } = req.params;
       const { restrictedBy, reason, restrict = true } = req.body;
-      
+
       const success = await storage.restrictUser(id, restrictedBy, reason, restrict);
-      
+
       if (!success) {
         return res.status(404).json({ message: "المستخدم غير موجود" });
       }
@@ -279,7 +279,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // If password is provided, this is a self-deletion request
       if (password) {
         console.log("Self-deletion request for user:", id);
-        
+
         // Verify the password by checking the user in database
         const { data: user, error: userError } = await supabase
           .from("users")
@@ -398,21 +398,21 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Apply client-side filtering if we have documents
       if (documents && documents.length > 0) {
         console.log("🔍 Applying client-side filtering...");
-        
+
         // Search filter - supports title search, full address search, and block letter filtering
         if (search) {
           console.log("🔍 Filtering by search:", search);
           documents = documents.filter(doc => {
             const searchTerm = (search as string).toLowerCase();
             const reference = (doc.reference || '').toLowerCase();
-            
+
             // If search is just 1-3 letters (like "A", "AB", "ABC"), treat it as block filtering
             if (/^[a-z]{1,3}$/i.test(searchTerm)) {
               const blockMatch = reference.startsWith(searchTerm.toLowerCase() + '.');
               console.log(`🔍 Document ${doc.id} reference "${doc.reference}" block matches "${search}": ${blockMatch}`);
               return blockMatch;
             }
-            
+
             // Otherwise, search in title and reference
             const titleMatch = doc.title.toLowerCase().includes(searchTerm);
             const referenceMatch = reference.includes(searchTerm);
@@ -453,11 +453,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
           console.log("🔍 Filtering by specialized section:", specializedSection);
           documents = documents.filter(doc => {
             const reference = doc.reference || '';
-            
+
             // Only match if the reference starts with the exact specialized section
             // This ensures "A" only matches "A.1.1", "A.2.1", etc., not "AB.1.1"
             const referenceMatches = reference.toUpperCase().startsWith((specializedSection as string).toUpperCase() + '.');
-            
+
             console.log(`🔍 Document ${doc.id} reference "${reference}" matches "${specializedSection}": ${referenceMatches}`);
             return referenceMatches;
           });
@@ -514,7 +514,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       const favorites = await storage.getUserFavorites(userId);
-      
+
       res.json(favorites || []);
     } catch (error) {
       console.error("❌ Error getting favorites:", error);
@@ -526,7 +526,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const { id } = req.params;
       console.log(`🔍 Fetching document with ID: ${id}`);
-      
+
       const document = await storage.getDocument(id);
 
       if (!document) {
@@ -546,21 +546,21 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       console.log("🚀 Document creation request received");
       console.log("📋 Request body:", req.body);
-      
+
       const { sectionId, createdBy, ...documentData } = req.body;
-      
+
       console.log("👤 Created by:", createdBy);
       console.log("📄 Document data:", documentData);
       console.log("🏷️ Section ID:", sectionId);
-      
+
       if (!createdBy) {
         console.error("❌ Missing createdBy field");
         return res.status(400).json({ message: "معرف المستخدم مطلوب" });
       }
-      
+
       // Create a simple section structure for the document
       let sectionIdToUse = 'default-section';
-      
+
       try {
         // First, ensure we have a default block
         const { data: defaultBlock, error: blockError } = await supabase
@@ -568,7 +568,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           .select("*")
           .eq("id", "default-block")
           .single();
-        
+
         if (!defaultBlock && blockError?.code === 'PGRST116') {
           console.log("📝 Creating default block...");
           const { data: newBlock, error: createBlockError } = await supabase
@@ -579,21 +579,21 @@ export async function registerRoutes(app: Express): Promise<Server> {
             })
             .select()
             .single();
-          
+
           if (createBlockError) {
             console.error("❌ Error creating default block:", createBlockError);
           } else {
             console.log("✅ Created default block:", newBlock);
           }
         }
-        
+
         // Then, ensure we have a default row
         const { data: defaultRow, error: rowError } = await supabase
           .from("rows")
           .select("*")
           .eq("id", "default-row")
           .single();
-        
+
         if (!defaultRow && rowError?.code === 'PGRST116') {
           console.log("📝 Creating default row...");
           const { data: newRow, error: createRowError } = await supabase
@@ -605,21 +605,21 @@ export async function registerRoutes(app: Express): Promise<Server> {
             })
             .select()
             .single();
-          
+
           if (createRowError) {
             console.error("❌ Error creating default row:", createRowError);
           } else {
             console.log("✅ Created default row:", newRow);
           }
         }
-        
+
         // Finally, ensure we have a default section
         const { data: defaultSection, error: sectionError } = await supabase
           .from("sections")
           .select("*")
           .eq("id", "default-section")
           .single();
-        
+
         if (!defaultSection && sectionError?.code === 'PGRST116') {
           console.log("📝 Creating default section...");
           const { data: newSection, error: createSectionError } = await supabase
@@ -631,7 +631,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
             })
             .select()
             .single();
-          
+
           if (createSectionError) {
             console.error("❌ Error creating default section:", createSectionError);
           } else {
@@ -641,31 +641,31 @@ export async function registerRoutes(app: Express): Promise<Server> {
         } else if (defaultSection) {
           sectionIdToUse = defaultSection.id;
         }
-        
+
       } catch (structureError) {
         console.error("❌ Error setting up document structure:", structureError);
         // Continue with default section ID
       }
-      
+
       console.log("🏷️ Using section ID:", sectionIdToUse);
-      
+
       // Create the document
       const document = await storage.createDocument({
         ...documentData,
         section_id: sectionIdToUse,
         created_by: createdBy,
-      } as InsertDocument);
-      
+      } as InsertDocument, createdBy);
+
       if (!document) {
         console.error("❌ Document creation returned null");
         return res.status(500).json({ message: "فشل في إنشاء الوثيقة" });
       }
-      
+
       console.log("✅ Document created successfully:", document);
       res.status(201).json(document);
     } catch (error) {
       console.error('❌ Document creation error:', error);
-      res.status(400).json({ 
+      res.status(400).json({
         message: "بيانات الوثيقة غير صالحة",
         error: error instanceof Error ? error.message : "Unknown error"
       });
@@ -694,7 +694,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       console.log("🌟 Request received at:", new Date().toISOString());
       const { id } = req.params;
       const userId = req.body.userId; // This should come from authentication in a real app
-      
+
       console.log("🌟 Adding favorite - Document ID:", id, "User ID:", userId);
       console.log("🌟 Request body:", req.body);
       console.log("🌟 Request headers:", req.headers);
@@ -705,7 +705,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       const favorite = await storage.addUserFavorite(userId, id);
-      
+
       if (!favorite) {
         console.log("❌ Failed to add favorite to storage");
         return res.status(400).json({ message: "فشل في إضافة الوثيقة إلى المفضلة" });
@@ -723,7 +723,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const { id } = req.params;
       const userId = req.body.userId; // This should come from authentication in a real app
-      
+
       console.log("🗑️ Removing favorite - Document ID:", id, "User ID:", userId);
       console.log("🗑️ Request body:", req.body);
 
@@ -733,7 +733,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       const success = await storage.removeUserFavorite(userId, id);
-      
+
       if (!success) {
         console.log("❌ Failed to remove favorite from storage");
         return res.status(400).json({ message: "فشل في إزالة الوثيقة من المفضلة" });
@@ -751,7 +751,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get("/api/test/favorites", async (req, res) => {
     try {
       console.log("🧪 Testing favorites database connection...");
-      
+
       // Test if user_favorites table exists by trying to query it
       const { data, error } = await supabase
         .from('user_favorites')
@@ -760,23 +760,23 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       if (error) {
         console.error("❌ Database test failed:", error);
-        return res.status(500).json({ 
-          message: "Database test failed", 
+        return res.status(500).json({
+          message: "Database test failed",
           error: error.message,
           details: error
         });
       }
 
       console.log("✅ Database test successful, table exists");
-      res.json({ 
-        message: "Database connection successful", 
+      res.json({
+        message: "Database connection successful",
         tableExists: true,
-        sampleData: data 
+        sampleData: data
       });
     } catch (error) {
       console.error("❌ Database test exception:", error);
-      res.status(500).json({ 
-        message: "Database test exception", 
+      res.status(500).json({
+        message: "Database test exception",
         error: error instanceof Error ? error.message : "Unknown error"
       });
     }
@@ -785,9 +785,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.delete("/api/documents/:id", async (req, res) => {
     try {
       const { id } = req.params;
-      console.log(`🗑️ DELETE request for document ID: ${id}`);
-      
-      const success = await storage.deleteDocument(id);
+      // Try to get userId from body, query, or headers
+      const userId = (req.body.userId || req.query.userId || req.headers['x-user-id']) as string;
+
+      console.log(`🗑️ DELETE request for document ID: ${id}, User ID: ${userId || 'unknown'}`);
+
+      const success = await storage.deleteDocument(id, userId);
       console.log(`🗑️ Delete result for ${id}: ${success}`);
 
       if (!success) {
@@ -833,7 +836,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       const limit = parseInt(req.query.limit as string) || 20;
-      
+
       // Get user's recent activity
       const { data: activities, error: activityError } = await supabase
         .from("user_activity_logs")
@@ -973,12 +976,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.put("/api/user/theme", async (req, res) => {
     try {
       const { theme } = req.body;
-      
+
       // Validate theme value
       if (!['light', 'dark', 'auto'].includes(theme)) {
         return res.status(400).json({ error: "قيمة الوضع غير صحيحة" });
       }
-      
+
       // In a real app, you'd save this to the user's profile in the database
       // For now, just return success
       res.json({ message: "تم حفظ تفضيل الوضع بنجاح", theme });
@@ -1001,28 +1004,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.get("/api/user/activity", async (req, res) => {
     try {
-      // Return sample activity data
-      const activities = [
-        {
-          id: 1,
-          action: "تسجيل الدخول",
-          details: "تم تسجيل الدخول بنجاح",
-          created_at: new Date().toISOString()
-        },
-        {
-          id: 2,
-          action: "إضافة وثيقة",
-          details: "تم إضافة وثيقة جديدة: حكم رقم 123/2024",
-          created_at: new Date(Date.now() - 3600000).toISOString()
-        },
-        {
-          id: 3,
-          action: "تحديث ملف شخصي",
-          details: "تم تحديث المعلومات الشخصية",
-          created_at: new Date(Date.now() - 7200000).toISOString()
-        }
-      ];
-      res.json(activities);
+      const userId = (req.query.userId || req.headers['x-user-id']) as string;
+
+      if (!userId) {
+        return res.json([]);
+      }
+
+      const activities = await storage.getUserActivityLogs(userId);
+      res.json(activities || []);
     } catch (error) {
       console.error('Activity fetch error:', error);
       res.status(500).json({ message: "خطأ في جلب النشاط" });
@@ -1094,8 +1083,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   // Test endpoint
   app.get("/api/test", (req, res) => {
-    res.json({ 
-      message: "API is working", 
+    res.json({
+      message: "API is working",
       timestamp: new Date().toISOString(),
       status: "OK"
     });
@@ -1122,7 +1111,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       if (!blockLabel) {
         return res.status(400).json({ message: "تسمية الكتلة مطلوبة" });
       }
-      
+
       const success = await createCustomBlockFolder(blockLabel);
       if (success) {
         res.json({ message: `تم إنشاء مجلد للكتلة ${blockLabel} بنجاح` });
@@ -1149,7 +1138,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.post("/api/papers", async (req, res) => {
     try {
-      const paper = await storage.createPaper(req.body as InsertPaper);
+      const { documentId, attachmentUrl, fileType, fileSize, ...rest } = req.body;
+      const paperData: InsertPaper = {
+        ...rest,
+        document_id: documentId || rest.document_id,
+        attachment_url: attachmentUrl || rest.attachment_url,
+        file_type: fileType || rest.file_type,
+        file_size: fileSize || rest.file_size
+      };
+
+      const paper = await storage.createPaper(paperData);
       if (!paper) {
         return res.status(400).json({ message: "فشل في إنشاء الورقة" });
       }
@@ -1193,7 +1191,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const { id } = req.params;
       console.log(`📦 Download request for document: ${id}`);
-      
+
       // Get document with papers
       const document = await storage.getDocument(id);
       if (!document) {
@@ -1216,20 +1214,20 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       // Create ZIP file
       const zip = new JSZip();
-      
+
       // Add each paper to the ZIP
       for (const paper of document.papers) {
         try {
           console.log(`🔄 Processing paper: ${paper.title} (ID: ${paper.id})`);
           let fileContent: ArrayBuffer;
-          
+
           if (paper.attachment_url) {
             console.log(`📁 Attempting to download file from storage: ${paper.attachment_url}`);
             // Try to download file from Supabase storage
             const { data: fileData, error: downloadError } = await supabase.storage
               .from('archive-documents')
               .download(paper.attachment_url);
-            
+
             if (downloadError) {
               console.log(`❌ File not found in storage for paper ${paper.id}:`, downloadError.message);
               // Create a placeholder file if the actual file doesn't exist
@@ -1246,13 +1244,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
             const placeholderContent = `Placeholder file for: ${paper.title}\n\nThis is a placeholder file because no attachment URL was provided.\n\nPaper ID: ${paper.id}\nDocument ID: ${document.id}\nCreated: ${paper.created_at}`;
             fileContent = new TextEncoder().encode(placeholderContent).buffer;
           }
-          
+
           // Add file to ZIP with proper extension
           const fileName = paper.title || `paper_${paper.id}`;
           const extension = paper.file_type || 'txt';
           const fullFileName = `${fileName}.${extension}`;
           zip.file(fullFileName, fileContent);
-          
+
           console.log(`✅ Added ${fullFileName} to ZIP (${fileContent.byteLength} bytes)`);
         } catch (error) {
           console.error(`❌ Error processing paper ${paper.id}:`, error);
@@ -1266,15 +1264,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
       console.log(`🔄 Generating ZIP file...`);
       const zipBuffer = await zip.generateAsync({ type: 'nodebuffer' });
       console.log(`📦 ZIP buffer size: ${zipBuffer.length} bytes`);
-      
+
       // Set response headers
       res.setHeader('Content-Type', 'application/zip');
       res.setHeader('Content-Disposition', `attachment; filename="${document.title}.zip"`);
       res.setHeader('Content-Length', zipBuffer.length);
-      
+
       // Send ZIP file
       res.send(zipBuffer);
-      
+
       console.log(`✅ ZIP file created for document: ${document.title} (${zipBuffer.length} bytes)`);
     } catch (error) {
       console.error('Document download error:', error);
@@ -1290,7 +1288,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       const { documentId, blockLabel, documentTitle, paperTitle } = req.body;
-      
+
       if (!documentId || !blockLabel || !documentTitle || !paperTitle) {
         return res.status(400).json({ message: "بيانات مطلوبة مفقودة" });
       }
@@ -1311,9 +1309,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
       );
 
       if (!uploadResult.success) {
-        return res.status(500).json({ 
+        return res.status(500).json({
           message: "فشل في رفع الملف",
-          error: uploadResult.error 
+          error: uploadResult.error
         });
       }
 
@@ -1327,7 +1325,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       };
 
       const paper = await storage.createPaper(paperData);
-      
+
       if (!paper) {
         return res.status(500).json({ message: "فشل في إنشاء سجل الورقة" });
       }
@@ -1351,13 +1349,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       const { documentId, blockLabel, documentTitle } = req.body;
-      
+
       if (!documentId || !blockLabel || !documentTitle) {
         return res.status(400).json({ message: "بيانات مطلوبة مفقودة" });
       }
 
       const results = [];
-      
+
       for (const file of files) {
         try {
           const fileName = fileUploadService.generateFileName(
@@ -1385,17 +1383,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
             const paper = await storage.createPaper(paperData);
             results.push({ success: true, paper, fileName });
           } else {
-            results.push({ 
-              success: false, 
-              fileName: file.originalname, 
-              error: uploadResult.error 
+            results.push({
+              success: false,
+              fileName: file.originalname,
+              error: uploadResult.error
             });
           }
         } catch (error) {
-          results.push({ 
-            success: false, 
-            fileName: file.originalname, 
-            error: error instanceof Error ? error.message : 'Unknown error' 
+          results.push({
+            success: false,
+            fileName: file.originalname,
+            error: error instanceof Error ? error.message : 'Unknown error'
           });
         }
       }
@@ -1422,7 +1420,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get("/api/recommendations", async (req, res) => {
     try {
       const { status, priority, user_id, document_id } = req.query;
-      
+
       let query = supabase
         .from("recommendations")
         .select(`
@@ -1547,7 +1545,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get("/api/comments", async (req, res) => {
     try {
       const { type, is_resolved, user_id, document_id } = req.query;
-      
+
       let query = supabase
         .from("comments")
         .select(`
@@ -1672,7 +1670,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get("/api/reports", async (req, res) => {
     try {
       const { type, severity, status, user_id, document_id } = req.query;
-      
+
       let query = supabase
         .from("reports")
         .select(`
@@ -1814,12 +1812,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
       if (isNaN(days) || days < 1 || days > 365) {
         return res.status(400).json({ message: "عدد الأيام غير صحيح" });
       }
-      
+
       const data = await storage.getUserActivityReportData(days);
       if (!data) {
         return res.status(500).json({ message: "خطأ في جلب بيانات تقرير النشاط" });
       }
-      
+
       res.json(data);
     } catch (error) {
       console.error('User activity report error:', error);
@@ -1846,19 +1844,19 @@ export async function registerRoutes(app: Express): Promise<Server> {
       for (let i = 0; i < 7; i++) {
         const date = new Date();
         date.setDate(date.getDate() - i);
-        
+
         // Generate 5-15 activities per day
         const activitiesPerDay = Math.floor(Math.random() * 11) + 5;
-        
+
         for (let j = 0; j < activitiesPerDay; j++) {
           const user = users[Math.floor(Math.random() * users.length)];
           const action = actions[Math.floor(Math.random() * actions.length)];
           const resourceType = resourceTypes[Math.floor(Math.random() * resourceTypes.length)];
-          
+
           const activityTime = new Date(date);
           activityTime.setHours(Math.floor(Math.random() * 24));
           activityTime.setMinutes(Math.floor(Math.random() * 60));
-          
+
           sampleActivities.push({
             user_id: user.id,
             action: action,
@@ -1886,7 +1884,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(500).json({ message: "خطأ في إدراج بيانات النشاط التجريبية" });
       }
 
-      res.json({ 
+      res.json({
         message: "تم إنشاء بيانات النشاط التجريبية بنجاح",
         activitiesCreated: sampleActivities.length
       });
@@ -1902,12 +1900,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
       if (isNaN(days) || days < 1 || days > 365) {
         return res.status(400).json({ message: "عدد الأيام غير صحيح" });
       }
-      
+
       const data = await storage.getDocumentStatsReportData(days);
       if (!data) {
         return res.status(500).json({ message: "خطأ في جلب بيانات تقرير الوثائق" });
       }
-      
+
       res.json(data);
     } catch (error) {
       console.error('Document stats report error:', error);
@@ -1921,7 +1919,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       if (!data) {
         return res.status(500).json({ message: "خطأ في جلب بيانات تقرير صحة النظام" });
       }
-      
+
       res.json(data);
     } catch (error) {
       console.error('System health report error:', error);
@@ -1935,12 +1933,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
       if (isNaN(days) || days < 1 || days > 365) {
         return res.status(400).json({ message: "عدد الأيام غير صحيح" });
       }
-      
+
       const data = await storage.getSecurityAuditReportData(days);
       if (!data) {
         return res.status(500).json({ message: "خطأ في جلب بيانات تقرير الأمان" });
       }
-      
+
       res.json(data);
     } catch (error) {
       console.error('Security audit report error:', error);

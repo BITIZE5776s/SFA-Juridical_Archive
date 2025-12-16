@@ -4,15 +4,11 @@ import { SystemReport } from "@shared/schema";
 
 export class PDFGenerator {
   private static formatNumber(num: number | string): string {
-    // Convert to string first
     const numStr = num.toString();
-    
-    // Convert Arabic numerals to Western numerals
-      const arabicToEnglish: { [key: string]: string } = {
-        '٠': '0', '١': '1', '٢': '2', '٣': '3', '٤': '4',
-        '٥': '5', '٦': '6', '٧': '7', '٨': '8', '٩': '9'
-      };
-    
+    const arabicToEnglish: { [key: string]: string } = {
+      '٠': '0', '١': '1', '٢': '2', '٣': '3', '٤': '4',
+      '٥': '5', '٦': '6', '٧': '7', '٨': '8', '٩': '9'
+    };
     return numStr.replace(/[٠-٩]/g, (digit) => arabicToEnglish[digit] || digit);
   }
 
@@ -36,26 +32,23 @@ export class PDFGenerator {
   }
 
   private static formatMixedText(text: string): string {
-    // Handle mixed Arabic/English text properly
-    // This function ensures proper text direction for mixed content
     return `<span class="mixed-text">${text}</span>`;
   }
 
   private static formatUserName(userName: string, userRole: string): string {
-    // Format user names with proper mixed language support
     const roleTranslations: { [key: string]: string } = {
       'admin': 'مدير',
       'archivist': 'أمين الأرشيف',
       'viewer': 'مشاهد'
     };
-    
+
     const translatedRole = roleTranslations[userRole] || userRole;
     return this.formatMixedText(`${userName} <span class="ltr">(${userRole})</span>`);
   }
 
   private static createReportHTML(report: SystemReport): string {
     const reportData = this.formatReportData(report);
-    
+
     return `
       <!DOCTYPE html>
       <html dir="rtl" lang="ar">
@@ -64,8 +57,20 @@ export class PDFGenerator {
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>${report.title}</title>
         <style>
-          @import url('https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Noto+Sans+Arabic:wght@400;700&display=swap');
+          @import url('https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Noto+Sans+Arabic:wght@400;500;600;700&display=swap');
           
+          :root {
+            --primary: #2563eb;
+            --primary-dark: #1e40af;
+            --secondary: #64748b;
+            --accent: #f59e0b;
+            --background: #ffffff;
+            --surface: #f8fafc;
+            --border: #e2e8f0;
+            --text-main: #1e293b;
+            --text-light: #64748b;
+          }
+
           * {
             margin: 0;
             padding: 0;
@@ -77,10 +82,11 @@ export class PDFGenerator {
             direction: rtl;
             text-align: right;
             line-height: 1.6;
-            color: #333;
-            background: white;
-            padding: 20px;
-            unicode-bidi: embed;
+            color: var(--text-main);
+            background: var(--background);
+            padding: 40px; /* Generous padding to avoid edge cutting */
+            width: 100%;
+            height: 100%;
           }
           
           /* Mixed language support */
@@ -93,168 +99,175 @@ export class PDFGenerator {
             direction: ltr;
             unicode-bidi: embed;
             display: inline-block;
-          }
-          
-          .mixed-text .rtl {
-            direction: rtl;
-            unicode-bidi: embed;
-            display: inline-block;
+            margin: 0 4px;
           }
           
           .header {
-            background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
             color: white;
-            padding: 30px;
-            border-radius: 10px;
-            margin-bottom: 30px;
+            padding: 40px;
+            border-radius: 12px;
+            margin-bottom: 40px;
             text-align: center;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+            position: relative;
+            overflow: hidden;
+          }
+
+          .header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(45deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0) 100%);
+            pointer-events: none;
           }
           
           .header h1 {
-            font-size: 28px;
-            font-weight: 700;
-            margin-bottom: 10px;
+            font-size: 32px;
+            font-weight: 800;
+            margin-bottom: 12px;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.1);
           }
           
           .header h2 {
             font-size: 18px;
-            font-weight: 400;
-            opacity: 0.9;
+            font-weight: 500;
+            opacity: 0.95;
           }
           
           .report-info {
-            background: #f8fafc;
-            border: 1px solid #e2e8f0;
-            border-radius: 8px;
-            padding: 20px;
-            margin-bottom: 30px;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 24px;
+            margin-bottom: 40px;
           }
           
-          .report-info h3 {
-            color: #1e40af;
+          .section-title {
+            color: var(--primary);
             font-size: 20px;
-            margin-bottom: 15px;
-            border-bottom: 2px solid #3b82f6;
-            padding-bottom: 8px;
+            font-weight: 700;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid var(--primary);
+            display: flex;
+            align-items: center;
           }
           
           .info-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 15px;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
           }
           
           .info-item {
             display: flex;
             justify-content: space-between;
-            padding: 8px 0;
-            border-bottom: 1px solid #e2e8f0;
-          }
-          
-          .info-item:last-child {
-            border-bottom: none;
+            align-items: center;
+            padding: 12px 16px;
+            background: white;
+            border-radius: 8px;
+            border: 1px solid var(--border);
           }
           
           .info-label {
-            font-weight: 700;
-            color: #374151;
+            font-weight: 600;
+            color: var(--secondary);
+            font-size: 14px;
           }
           
           .info-value {
-            color: #6b7280;
+            color: var(--text-main);
+            font-weight: 700;
           }
           
           .content-section {
-            margin-bottom: 30px;
-          }
-          
-          .content-section h3 {
-            color: #1e40af;
-            font-size: 20px;
-            margin-bottom: 15px;
-            border-bottom: 2px solid #3b82f6;
-            padding-bottom: 8px;
+            margin-bottom: 40px;
+            break-inside: avoid; /* Try to avoid breaking inside sections */
           }
           
           .stats-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            grid-template-columns: repeat(4, 1fr);
             gap: 20px;
-            margin-bottom: 20px;
+            margin-bottom: 24px;
           }
           
           .stat-card {
             background: white;
-            border: 1px solid #e2e8f0;
-            border-radius: 8px;
-            padding: 20px;
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 24px 16px;
             text-align: center;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+            transition: transform 0.2s;
           }
           
           .stat-number {
-            font-size: 24px;
-            font-weight: 700;
-            color: #3b82f6;
-            margin-bottom: 5px;
+            font-size: 32px;
+            font-weight: 800;
+            color: var(--primary);
+            margin-bottom: 8px;
+            line-height: 1;
           }
           
           .stat-label {
-            color: #6b7280;
-            font-size: 14px;
+            color: var(--secondary);
+            font-size: 13px;
+            font-weight: 500;
           }
           
+          .list-container {
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            overflow: hidden;
+          }
+
           .list-item {
-            padding: 10px 0;
-            border-bottom: 1px solid #f1f5f9;
+            padding: 16px 20px;
+            border-bottom: 1px solid var(--border);
             display: flex;
             justify-content: space-between;
             align-items: center;
+            background: white;
           }
           
           .list-item:last-child {
             border-bottom: none;
           }
           
+          .list-item:nth-child(even) {
+            background: var(--surface);
+          }
+          
           .list-label {
             font-weight: 600;
-            color: #374151;
+            color: var(--text-main);
           }
           
           .list-value {
-            color: #6b7280;
-            background: #f8fafc;
-            padding: 4px 8px;
-            border-radius: 4px;
+            color: var(--primary);
+            background: #eff6ff;
+            padding: 4px 12px;
+            border-radius: 20px;
             font-size: 14px;
+            font-weight: 700;
+            min-width: 40px;
+            text-align: center;
           }
           
           .footer {
-            margin-top: 40px;
-            padding-top: 20px;
-            border-top: 2px solid #e2e8f0;
+            margin-top: 60px;
+            padding-top: 24px;
+            border-top: 2px solid var(--border);
             text-align: center;
-            color: #6b7280;
+            color: var(--secondary);
             font-size: 12px;
-          }
-          
-          .page-break {
-            page-break-before: always;
-          }
-          
-          @media print {
-            body {
-              padding: 0;
-            }
-            
-            .header {
-              margin-bottom: 20px;
-            }
-            
-            .content-section {
-              margin-bottom: 20px;
-            }
+            display: flex;
+            justify-content: space-between;
           }
         </style>
       </head>
@@ -265,23 +278,23 @@ export class PDFGenerator {
         </div>
         
         <div class="report-info">
-          <h3>معلومات التقرير</h3>
+          <div class="section-title">معلومات التقرير</div>
           <div class="info-grid">
             <div class="info-item">
-              <span class="info-label">تاريخ الإنشاء:</span>
+              <span class="info-label">تاريخ الإنشاء</span>
               <span class="info-value">${this.formatDate(report.created_at)}</span>
             </div>
             <div class="info-item">
-              <span class="info-label">وقت الإنشاء:</span>
+              <span class="info-label">وقت الإنشاء</span>
               <span class="info-value">${this.formatTime(report.created_at)}</span>
             </div>
             <div class="info-item">
-              <span class="info-label">نوع التقرير:</span>
+              <span class="info-label">نوع التقرير</span>
               <span class="info-value">${this.getReportTypeLabel(report.report_type)}</span>
             </div>
             ${report.description ? `
             <div class="info-item">
-              <span class="info-label">الوصف:</span>
+              <span class="info-label">الوصف</span>
               <span class="info-value">${report.description}</span>
             </div>
             ` : ''}
@@ -291,8 +304,8 @@ export class PDFGenerator {
         ${reportData}
         
         <div class="footer">
-          <p>تم إنشاء هذا التقرير تلقائياً بواسطة نظام الأرشيف القضائي</p>
-          <p>تاريخ الطباعة: ${this.formatDate(new Date())} - ${this.formatTime(new Date())}</p>
+          <span>تم إنشاء هذا التقرير تلقائياً بواسطة نظام الأرشيف القضائي</span>
+          <span>${this.formatDate(new Date())} - ${this.formatTime(new Date())}</span>
         </div>
       </body>
       </html>
@@ -326,63 +339,70 @@ export class PDFGenerator {
 
   static async generateReportPDF(report: SystemReport): Promise<void> {
     try {
-      // Create HTML content
       const htmlContent = this.createReportHTML(report);
-      
-      // Create a temporary container
+
       const tempContainer = document.createElement('div');
       tempContainer.innerHTML = htmlContent;
       tempContainer.style.position = 'absolute';
       tempContainer.style.left = '-9999px';
       tempContainer.style.top = '0';
-      tempContainer.style.width = '210mm'; // A4 width
-      tempContainer.style.fontSize = '12px';
+      // Use slightly less than A4 width to ensure margins
+      tempContainer.style.width = '210mm';
       document.body.appendChild(tempContainer);
 
-      // Wait for fonts to load
       await document.fonts.ready;
 
-      // Convert HTML to canvas
+      // Wait a bit for any layout shifts
+      await new Promise(resolve => setTimeout(resolve, 100));
+
       const canvas = await html2canvas(tempContainer, {
-        scale: 2,
+        scale: 2, // Higher scale for better quality
         useCORS: true,
         allowTaint: true,
         backgroundColor: '#ffffff',
-        width: 794, // A4 width in pixels at 96 DPI
-        height: tempContainer.scrollHeight
+        logging: false
       });
 
-      // Remove temporary container
       document.body.removeChild(tempContainer);
 
-      // Create PDF from canvas
       const imgData = canvas.toDataURL('image/png');
-    const pdf = new jsPDF('p', 'mm', 'a4');
-    const pageWidth = pdf.internal.pageSize.getWidth();
-    const pageHeight = pdf.internal.pageSize.getHeight();
-      
-      const imgWidth = pageWidth;
-      const imgHeight = (canvas.height * pageWidth) / canvas.width;
-      
+      const pdf = new jsPDF('p', 'mm', 'a4');
+
+      const pdfWidth = pdf.internal.pageSize.getWidth();
+      const pdfHeight = pdf.internal.pageSize.getHeight();
+
+      // Calculate dimensions to fit width while maintaining aspect ratio
+      const imgWidth = pdfWidth;
+      const imgHeight = (canvas.height * imgWidth) / canvas.width;
+
       let heightLeft = imgHeight;
       let position = 0;
 
-      // Add first page
+      // First page
       pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
-      heightLeft -= pageHeight;
+      heightLeft -= pdfHeight;
 
-      // Add additional pages if needed
-      while (heightLeft >= 0) {
-        position = heightLeft - imgHeight;
+      // Subsequent pages
+      while (heightLeft > 0) {
+        position = heightLeft - imgHeight; // This puts the top of the image off-screen upwards
+
+        // We need to shift detailed pages correctly
+        // The previous logic 'position = heightLeft - imgHeight' seems wrong if heightLeft decreases.
+        // If we want to show the NEXT chunk:
+        // Page 1 shows 0 to pdfHeight.
+        // Page 2 should show pdfHeight to 2*pdfHeight.
+        // To show that, we place the image at Y = -pdfHeight.
+
+        position = - (imgHeight - heightLeft);
+
         pdf.addPage();
         pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
-        heightLeft -= pageHeight;
+        heightLeft -= pdfHeight;
       }
 
-    // Download the PDF
-    const fileName = `${report.title.replace(/[^a-zA-Z0-9\u0600-\u06FF]/g, '_')}_${new Date().toISOString().split('T')[0]}.pdf`;
-    pdf.save(fileName);
-      
+      const fileName = `${report.title.replace(/[^a-zA-Z0-9\u0600-\u06FF]/g, '_')}_${new Date().toISOString().split('T')[0]}.pdf`;
+      pdf.save(fileName);
+
     } catch (error) {
       console.error('PDF generation error:', error);
       throw new Error('فشل في إنشاء ملف PDF');
@@ -392,7 +412,7 @@ export class PDFGenerator {
   private static formatUserActivityData(data: any): string {
     return `
       <div class="content-section">
-        <h3>ملخص النشاط</h3>
+        <div class="section-title">ملخص النشاط</div>
         <div class="stats-grid">
           <div class="stat-card">
             <div class="stat-number">${this.formatNumber(data.totalActivities || 0)}</div>
@@ -410,33 +430,37 @@ export class PDFGenerator {
       </div>
       
       <div class="content-section">
-        <h3>توزيع الأنشطة</h3>
-        <div class="list-item">
-          <span class="list-label">الوثائق</span>
-          <span class="list-value">${this.formatNumber(data.activityBreakdown?.documentActions || 0)}</span>
-        </div>
-        <div class="list-item">
-          <span class="list-label">المستخدمون</span>
-          <span class="list-value">${this.formatNumber(data.activityBreakdown?.userActions || 0)}</span>
-        </div>
-        <div class="list-item">
-          <span class="list-label">التعليقات</span>
-          <span class="list-value">${this.formatNumber(data.activityBreakdown?.commentActions || 0)}</span>
-        </div>
-        <div class="list-item">
-          <span class="list-label">التقارير</span>
-          <span class="list-value">${this.formatNumber(data.activityBreakdown?.reportActions || 0)}</span>
+        <div class="section-title">توزيع الأنشطة</div>
+        <div class="list-container">
+          <div class="list-item">
+            <span class="list-label">الوثائق</span>
+            <span class="list-value">${this.formatNumber(data.activityBreakdown?.documentActions || 0)}</span>
+          </div>
+          <div class="list-item">
+            <span class="list-label">المستخدمون</span>
+            <span class="list-value">${this.formatNumber(data.activityBreakdown?.userActions || 0)}</span>
+          </div>
+          <div class="list-item">
+            <span class="list-label">التعليقات</span>
+            <span class="list-value">${this.formatNumber(data.activityBreakdown?.commentActions || 0)}</span>
+          </div>
+          <div class="list-item">
+            <span class="list-label">التقارير</span>
+            <span class="list-value">${this.formatNumber(data.activityBreakdown?.reportActions || 0)}</span>
+          </div>
         </div>
       </div>
       
       <div class="content-section">
-        <h3>أكثر المستخدمين نشاطاً</h3>
-        ${(data.userStats || []).slice(0, 5).map((user: any, index: number) => `
-          <div class="list-item">
-            <span class="list-label">${this.formatNumber(index + 1)}. ${this.formatUserName(user.userName || 'غير محدد', user.userRole || 'غير محدد')}</span>
-            <span class="list-value">${this.formatNumber(user.activityCount || 0)} نشاط</span>
-          </div>
-        `).join('')}
+        <div class="section-title">أكثر المستخدمين نشاطاً</div>
+        <div class="list-container">
+          ${(data.userStats || []).slice(0, 5).map((user: any, index: number) => `
+            <div class="list-item">
+              <span class="list-label">${this.formatNumber(index + 1)}. ${this.formatUserName(user.userName || 'غير محدد', user.userRole || 'غير محدد')}</span>
+              <span class="list-value">${this.formatNumber(user.activityCount || 0)} نشاط</span>
+            </div>
+          `).join('')}
+        </div>
       </div>
     `;
   }
@@ -444,7 +468,7 @@ export class PDFGenerator {
   private static formatDocumentStatsData(data: any): string {
     return `
       <div class="content-section">
-        <h3>ملخص الوثائق</h3>
+        <div class="section-title">ملخص الوثائق</div>
         <div class="stats-grid">
           <div class="stat-card">
             <div class="stat-number">${this.formatNumber(data.totalDocuments || 0)}</div>
@@ -459,58 +483,62 @@ export class PDFGenerator {
             <div class="stat-label">وثائق محدثة</div>
           </div>
           <div class="stat-card">
-            <div class="stat-number">${this.formatNumber(data.deletedDocuments || 0)}</div>
+            <div class="stat-number" style="color: #ef4444;">${this.formatNumber(data.deletedDocuments || 0)}</div>
             <div class="stat-label">وثائق محذوفة</div>
           </div>
         </div>
       </div>
       
       <div class="content-section">
-        <h3>الوثائق حسب الفئة</h3>
-        ${Object.entries(data.documentsByCategory || {}).map(([category, count]: [string, any]) => `
-          <div class="list-item">
-            <span class="list-label">${category}</span>
-            <span class="list-value">${this.formatNumber(count)}</span>
-          </div>
-        `).join('')}
+        <div class="section-title">الوثائق حسب الفئة</div>
+        <div class="list-container">
+          ${Object.entries(data.documentsByCategory || {}).map(([category, count]: [string, any]) => `
+            <div class="list-item">
+              <span class="list-label">${category}</span>
+              <span class="list-value">${this.formatNumber(count)}</span>
+            </div>
+          `).join('')}
+        </div>
       </div>
       
       <div class="content-section">
-        <h3>الوثائق حسب الحالة</h3>
-        <div class="list-item">
-          <span class="list-label">نشطة</span>
-          <span class="list-value">${this.formatNumber(data.documentsByStatus?.active || 0)}</span>
-        </div>
-        <div class="list-item">
-          <span class="list-label">معلقة</span>
-          <span class="list-value">${this.formatNumber(data.documentsByStatus?.pending || 0)}</span>
-        </div>
-        <div class="list-item">
-          <span class="list-label">مؤرشفة</span>
-          <span class="list-value">${this.formatNumber(data.documentsByStatus?.archived || 0)}</span>
+        <div class="section-title">الوثائق حسب الحالة</div>
+        <div class="list-container">
+          <div class="list-item">
+            <span class="list-label">نشطة</span>
+            <span class="list-value">${this.formatNumber(data.documentsByStatus?.active || 0)}</span>
+          </div>
+          <div class="list-item">
+            <span class="list-label">معلقة</span>
+            <span class="list-value">${this.formatNumber(data.documentsByStatus?.pending || 0)}</span>
+          </div>
+          <div class="list-item">
+            <span class="list-label">مؤرشفة</span>
+            <span class="list-value">${this.formatNumber(data.documentsByStatus?.archived || 0)}</span>
+          </div>
         </div>
       </div>
     `;
   }
 
   private static formatSystemHealthData(data: any): string {
-    const statusColor = data.systemStatus === 'healthy' ? '#22c55e' : 
-                       data.systemStatus === 'warning' ? '#f59e0b' : '#ef4444';
+    const statusColor = data.systemStatus === 'healthy' ? '#22c55e' :
+      data.systemStatus === 'warning' ? '#f59e0b' : '#ef4444';
     const statusText = data.systemStatus === 'healthy' ? 'سليم' :
-                      data.systemStatus === 'warning' ? 'تحذير' :
-                      data.systemStatus === 'critical' ? 'حرج' : 'غير محدد';
+      data.systemStatus === 'warning' ? 'تحذير' :
+        data.systemStatus === 'critical' ? 'حرج' : 'غير محدد';
 
     return `
       <div class="content-section">
-        <h3>حالة النظام</h3>
-        <div class="stat-card" style="border-left: 4px solid ${statusColor};">
+        <div class="section-title">حالة النظام</div>
+        <div class="stat-card" style="border-right: 4px solid ${statusColor};">
           <div class="stat-number" style="color: ${statusColor};">${statusText}</div>
           <div class="stat-label">الحالة الحالية</div>
         </div>
       </div>
       
       <div class="content-section">
-        <h3>إحصائيات المستخدمين</h3>
+        <div class="section-title">إحصائيات المستخدمين</div>
         <div class="stats-grid">
           <div class="stat-card">
             <div class="stat-number">${this.formatNumber(data.totalUsers || 0)}</div>
@@ -521,30 +549,32 @@ export class PDFGenerator {
             <div class="stat-label">المستخدمون النشطون</div>
           </div>
           <div class="stat-card">
-            <div class="stat-number">${this.formatNumber(data.restrictedUsers || 0)}</div>
+            <div class="stat-number" style="color: #ef4444;">${this.formatNumber(data.restrictedUsers || 0)}</div>
             <div class="stat-label">المستخدمون المقيدون</div>
           </div>
         </div>
       </div>
       
       <div class="content-section">
-        <h3>توزيع المستخدمين حسب الأدوار</h3>
-        <div class="list-item">
-          <span class="list-label">المديرون</span>
-          <span class="list-value">${this.formatNumber(data.userRoles?.admin || 0)}</span>
-        </div>
-        <div class="list-item">
-          <span class="list-label">الأرشيفيون</span>
-          <span class="list-value">${this.formatNumber(data.userRoles?.archivist || 0)}</span>
-        </div>
-        <div class="list-item">
-          <span class="list-label">المشاهدون</span>
-          <span class="list-value">${this.formatNumber(data.userRoles?.viewer || 0)}</span>
+        <div class="section-title">توزيع المستخدمين حسب الأدوار</div>
+        <div class="list-container">
+          <div class="list-item">
+            <span class="list-label">المديرون</span>
+            <span class="list-value">${this.formatNumber(data.userRoles?.admin || 0)}</span>
+          </div>
+          <div class="list-item">
+            <span class="list-label">الأرشيفيون</span>
+            <span class="list-value">${this.formatNumber(data.userRoles?.archivist || 0)}</span>
+          </div>
+          <div class="list-item">
+            <span class="list-label">المشاهدون</span>
+            <span class="list-value">${this.formatNumber(data.userRoles?.viewer || 0)}</span>
+          </div>
         </div>
       </div>
       
       <div class="content-section">
-        <h3>إحصائيات الوثائق</h3>
+        <div class="section-title">إحصائيات الوثائق</div>
         <div class="stats-grid">
           <div class="stat-card">
             <div class="stat-number">${this.formatNumber(data.documentStats?.totalDocuments || 0)}</div>
@@ -566,27 +596,31 @@ export class PDFGenerator {
       </div>
       
       <div class="content-section">
-        <h3>اختبارات الأداء</h3>
-        ${Object.entries(data.performanceTests || {}).map(([testName, test]: [string, any]) => `
-          <div class="list-item">
-            <span class="list-label">${this.getTestName(testName)}</span>
-            <span class="list-value" style="color: ${test.status === 'passed' ? '#22c55e' : test.status === 'failed' ? '#ef4444' : '#6b7280'};">
-              ${test.status === 'passed' ? 'نجح' : test.status === 'failed' ? 'فشل' : 'غير محدد'} 
-              ${test.responseTime ? `(${test.responseTime}ms)` : ''}
-            </span>
-          </div>
-        `).join('')}
+        <div class="section-title">اختبارات الأداء</div>
+        <div class="list-container">
+          ${Object.entries(data.performanceTests || {}).map(([testName, test]: [string, any]) => `
+            <div class="list-item">
+              <span class="list-label">${this.getTestName(testName)}</span>
+              <span class="list-value" style="color: ${test.status === 'passed' ? 'green' : test.status === 'failed' ? 'red' : 'gray'}; background: transparent;">
+                ${test.status === 'passed' ? 'نجح' : test.status === 'failed' ? 'فشل' : 'غير محدد'} 
+                ${test.responseTime ? `(${test.responseTime}ms)` : ''}
+              </span>
+            </div>
+          `).join('')}
+        </div>
       </div>
       
       ${data.systemAlerts && data.systemAlerts.length > 0 ? `
       <div class="content-section">
-        <h3>تنبيهات النظام</h3>
-        ${data.systemAlerts.map((alert: any) => `
-          <div class="list-item" style="border-left: 4px solid ${alert.type === 'error' ? '#ef4444' : '#f59e0b'};">
-            <span class="list-label">${alert.message}</span>
-            <span class="list-value">${alert.details}</span>
-          </div>
-        `).join('')}
+        <div class="section-title">تنبيهات النظام</div>
+        <div class="list-container">
+          ${data.systemAlerts.map((alert: any) => `
+            <div class="list-item" style="border-right: 4px solid ${alert.type === 'error' ? '#ef4444' : '#f59e0b'};">
+              <span class="list-label">${alert.message}</span>
+              <span class="list-value" style="background: transparent;">${alert.details}</span>
+            </div>
+          `).join('')}
+        </div>
       </div>
       ` : ''}
     `;
@@ -606,34 +640,38 @@ export class PDFGenerator {
   private static formatSecurityAuditData(data: any): string {
     return `
       <div class="content-section">
-        <h3>ملخص الأمان</h3>
-        <div class="stat-card">
-          <div class="stat-number">${this.formatNumber(data.totalSecurityEvents || 0)}</div>
-          <div class="stat-label">إجمالي أحداث الأمان</div>
+        <div class="section-title">ملخص الأمان</div>
+        <div class="stats-grid" style="grid-template-columns: repeat(1, 1fr);">
+          <div class="stat-card">
+            <div class="stat-number" style="color: #ef4444;">${this.formatNumber(data.totalSecurityEvents || 0)}</div>
+            <div class="stat-label">إجمالي أحداث الأمان</div>
+          </div>
         </div>
       </div>
       
       <div class="content-section">
-        <h3>أحداث الأمان</h3>
-        <div class="list-item">
-          <span class="list-label">تسجيلات الدخول</span>
-          <span class="list-value">${this.formatNumber(data.loginEvents || 0)}</span>
-        </div>
-        <div class="list-item">
-          <span class="list-label">تسجيلات الخروج</span>
-          <span class="list-value">${this.formatNumber(data.logoutEvents || 0)}</span>
-        </div>
-        <div class="list-item">
-          <span class="list-label">قيود المستخدمين</span>
-          <span class="list-value">${this.formatNumber(data.userRestrictions || 0)}</span>
-        </div>
-        <div class="list-item">
-          <span class="list-label">حذف المستخدمين</span>
-          <span class="list-value">${this.formatNumber(data.userDeletions || 0)}</span>
-        </div>
-        <div class="list-item">
-          <span class="list-label">تغيير الأدوار</span>
-          <span class="list-value">${this.formatNumber(data.roleChanges || 0)}</span>
+        <div class="section-title">أحداث الأمان</div>
+        <div class="list-container">
+          <div class="list-item">
+            <span class="list-label">تسجيلات الدخول</span>
+            <span class="list-value">${this.formatNumber(data.loginEvents || 0)}</span>
+          </div>
+          <div class="list-item">
+            <span class="list-label">تسجيلات الخروج</span>
+            <span class="list-value">${this.formatNumber(data.logoutEvents || 0)}</span>
+          </div>
+          <div class="list-item">
+            <span class="list-label">قيود المستخدمين</span>
+            <span class="list-value">${this.formatNumber(data.userRestrictions || 0)}</span>
+          </div>
+          <div class="list-item">
+            <span class="list-label">حذف المستخدمين</span>
+            <span class="list-value">${this.formatNumber(data.userDeletions || 0)}</span>
+          </div>
+          <div class="list-item">
+            <span class="list-label">تغيير الأدوار</span>
+            <span class="list-value">${this.formatNumber(data.roleChanges || 0)}</span>
+          </div>
         </div>
       </div>
     `;
