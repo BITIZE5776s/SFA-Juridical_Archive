@@ -1,4 +1,5 @@
 import express, { type Express } from "express";
+import rateLimit from "express-rate-limit";
 import fs from "fs";
 import path from "path";
 import { createServer as createViteServer, createLogger } from "vite";
@@ -39,7 +40,14 @@ export async function setupVite(app: Express, server: Server) {
   });
 
   app.use(vite.middlewares);
-  app.use("*", async (req, res, next) => {
+  // Set up rate limiter: max 100 requests per 15 minutes per IP to Vite index route
+  const viteIndexLimiter = rateLimit({
+    windowMs: 15 * 60 * 1000,
+    max: 100,
+    standardHeaders: true,
+    legacyHeaders: false,
+  });
+  app.use("*", viteIndexLimiter, async (req, res, next) => {
     const url = req.originalUrl;
 
     try {
@@ -70,10 +78,19 @@ export function serveStatic(app: Express) {
     );
   }
 
+  // Set up rate limiter: max 100 requests per 15 minutes per IP to static assets
+  const staticRateLimiter = rateLimit({
+    windowMs: 15 * 60 * 1000,
+    max: 100,
+    standardHeaders: true,  // Return rate limit info in the RateLimit-* headers
+    legacyHeaders: false,   // Disable the X-RateLimit-* headers
+  });
+
+  app.use(staticRateLimiter); // apply limiter to static file requests
   app.use(express.static(distPath));
 
   // fall through to index.html if the file doesn't exist
-  app.use("*", (_req, res) => {
+  app.use("*", staticRateLimiter, (_req, res) => {
     res.sendFile(path.resolve(distPath, "index.html"));
   });
 }
